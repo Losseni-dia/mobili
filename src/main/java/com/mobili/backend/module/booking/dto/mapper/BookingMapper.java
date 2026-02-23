@@ -1,5 +1,3 @@
-package com.mobili.backend.module.booking.entity;
-
 package com.mobili.backend.module.booking.dto.mapper;
 
 import com.mobili.backend.module.booking.dto.BookingRequestDTO;
