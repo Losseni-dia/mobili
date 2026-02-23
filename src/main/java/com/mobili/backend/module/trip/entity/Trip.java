@@ -1,6 +1,5 @@
 package com.mobili.backend.module.trip.entity;
 
-import com.mobili.backend.module.transport.entity.Route;
 import com.mobili.backend.module.transport.entity.Vehicle;
 import com.mobili.backend.shared.abstractEntity.AbstractEntity;
 
