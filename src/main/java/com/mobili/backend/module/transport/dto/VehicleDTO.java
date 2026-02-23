@@ -6,6 +6,10 @@ import lombok.Data;
 public class VehicleDTO {
     private Long id;
     private String plateNumber;
+    private String model;
     private Integer capacity;
-    private String type; // On le passe en String pour le JSON
+    private Boolean available;
+    private String type; // BUS, MINIBUS, etc.
+    private Long companyId; // On lie par l'ID pour simplifier le JSON
+    private String companyName; // Pratique pour l'affichage direct
 }
