@@ -19,9 +19,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Route extends AbstractEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
     @ManyToOne // Plusieurs trajets peuvent partir de la même ville
     @JoinColumn(name = "departure_city_id", nullable = false)

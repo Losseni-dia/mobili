@@ -8,7 +8,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/mobili_db
     username: postgres
-    password: votre_mot_de_passe
+    password: root
     driver-class-name: org.postgresql.Driver
 
   # Configuration JPA / Hibernate

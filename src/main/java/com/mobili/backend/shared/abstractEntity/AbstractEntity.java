@@ -7,11 +7,16 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDateTime;
 
-@MappedSuperclass // Dit à JPA : "Ne crée pas de table pour ça, mais copie ces champs ailleurs"
-@EntityListeners(AuditingEntityListener.class) // Active l'auto-remplissage des dates
+@MappedSuperclass
+@EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
 public abstract class AbstractEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id; // Toutes tes tables auront maintenant un ID auto-incrémenté
+
     @CreatedDate
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;

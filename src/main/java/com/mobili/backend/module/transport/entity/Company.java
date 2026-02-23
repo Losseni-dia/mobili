@@ -16,10 +16,6 @@ import lombok.*;
 @AllArgsConstructor
 public class Company extends AbstractEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     @Column(nullable = false)
     private String name;
 

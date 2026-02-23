@@ -15,10 +15,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class Trip extends AbstractEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     @ManyToOne
     @JoinColumn(name = "route_id", nullable = false)
     private Route route; // L'itinéraire (ex: Abidjan -> Bamako)

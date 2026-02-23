@@ -19,9 +19,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class City extends AbstractEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
     @Column(nullable = false)
     private String cityName;
