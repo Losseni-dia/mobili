@@ -2,8 +2,8 @@ package com.mobili.backend.module.transport.service;
 
 import com.mobili.backend.module.transport.entity.Vehicle;
 import com.mobili.backend.module.transport.repository.VehicleRepository;
-import com.mobili.backend.shared.MobiliError.ResourceNotFoundException;
-
+import com.mobili.backend.shared.MobiliError.exception.MobiliErrorCode;
+import com.mobili.backend.shared.MobiliError.exception.MobiliException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +23,9 @@ public class VehicleService {
 
     public Vehicle findById(Long id) {
         return vehicleRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Véhicule introuvable (ID: " + id + ")"));
+                .orElseThrow(() -> new MobiliException(
+                        MobiliErrorCode.RESOURCE_NOT_FOUND,
+                        "Véhicule introuvable (ID: " + id + ")"));
     }
 
     public List<Vehicle> findByCompany(Long companyId) {
@@ -39,7 +41,9 @@ public class VehicleService {
     @Transactional
     public void delete(Long id) {
         if (!vehicleRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Impossible de supprimer : Véhicule introuvable");
+            throw new MobiliException(
+                    MobiliErrorCode.RESOURCE_NOT_FOUND,
+                    "Impossible de supprimer : Véhicule introuvable");
         }
         vehicleRepository.deleteById(id);
     }

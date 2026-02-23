@@ -2,8 +2,8 @@ package com.mobili.backend.module.transport.service;
 
 import com.mobili.backend.module.transport.entity.Company;
 import com.mobili.backend.module.transport.repository.CompanyRepository;
-import com.mobili.backend.shared.MobiliError.ResourceNotFoundException;
-
+import com.mobili.backend.shared.MobiliError.exception.MobiliErrorCode;
+import com.mobili.backend.shared.MobiliError.exception.MobiliException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,7 +22,9 @@ public class CompanyService {
 
     public Company findById(Long id) {
         return companyRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Compagnie introuvable (ID: " + id + ")"));
+                .orElseThrow(() -> new MobiliException(
+                        MobiliErrorCode.RESOURCE_NOT_FOUND,
+                        "Compagnie introuvable (ID: " + id + ")"));
     }
 
     @Transactional
@@ -33,7 +35,9 @@ public class CompanyService {
     @Transactional
     public void delete(Long id) {
         if (!companyRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Impossible de supprimer : Compagnie introuvable");
+            throw new MobiliException(
+                    MobiliErrorCode.RESOURCE_NOT_FOUND,
+                    "Impossible de supprimer : Compagnie introuvable");
         }
         companyRepository.deleteById(id);
     }

@@ -2,8 +2,8 @@ package com.mobili.backend.module.trip.service;
 
 import com.mobili.backend.module.trip.entity.Route;
 import com.mobili.backend.module.trip.repository.RouteRepository;
-import com.mobili.backend.shared.MobiliError.ResourceNotFoundException;
-
+import com.mobili.backend.shared.MobiliError.exception.MobiliErrorCode;
+import com.mobili.backend.shared.MobiliError.exception.MobiliException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +21,9 @@ public class RouteService {
 
     public Route findById(Long id) {
         return routeRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Route introuvable (ID: " + id + ")"));
+                .orElseThrow(() -> new MobiliException(
+                        MobiliErrorCode.RESOURCE_NOT_FOUND,
+                        "Route introuvable (ID: " + id + ")"));
     }
 
     @Transactional
@@ -31,6 +33,11 @@ public class RouteService {
 
     @Transactional
     public void delete(Long id) {
+        if (!routeRepository.existsById(id)) {
+            throw new MobiliException(
+                    MobiliErrorCode.RESOURCE_NOT_FOUND,
+                    "Impossible de supprimer : Route introuvable");
+        }
         routeRepository.deleteById(id);
     }
 }
