@@ -8,6 +8,6 @@ import java.util.Optional;
 
 @Repository
 public interface RouteRepository extends JpaRepository<Route, Long> {
-    // Trouver une route spécifique entre deux villes
-    Optional<Route> findByDepartureCityIdAndArrivalCityId(Long depId, Long arrId);
+    // Trouver une route spécifique entre deux villesOptional<Route>
+    Optional<Route> findByDepartureCityIdAndArrivalCityId(Long departureId, Long arrivalId);
 }
