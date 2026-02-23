@@ -7,7 +7,8 @@ import java.time.LocalDateTime;
 @Data
 public class BookingResponseDTO {
     private Long id;
-    private String passengerName;
+    private String firstName;
+    private String lastName;
     private String passengerPhone;
     private Integer seatNumber;
     private BookingStatus status;

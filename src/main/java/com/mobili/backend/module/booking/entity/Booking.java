@@ -19,7 +19,10 @@ public class Booking extends AbstractEntity {
     private Trip trip;
 
     @Column(nullable = false)
-    private String passengerName;
+    private String passengerFirstName;
+    
+    @Column(nullable = false)
+    private String passengerLastName;
 
     @Column(nullable = false)
     private String passengerPhone;
