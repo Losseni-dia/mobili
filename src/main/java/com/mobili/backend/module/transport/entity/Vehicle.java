@@ -24,6 +24,10 @@ public class Vehicle extends AbstractEntity {
 
     private Integer capacity; // Nombre total de sièges (ex: 70)
 
+    private Boolean available; // Disponibilité du véhicule
+
+    private String standardFeatures; // Caractéristiques standard (ex: climatisation, Wi-Fi)
+
     @Enumerated(EnumType.STRING)
     private VehicleType type; // BUS, MINIBUS, CAR
 
