@@ -1,15 +1,12 @@
 package com.mobili.backend.module.trip.dto.mapper;
 
-import com.mobili.backend.module.trip.dto.RouteDTO;
-import com.mobili.backend.module.trip.entity.Route;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
+import com.mobili.backend.module.trip.dto.RouteDTO;
+import com.mobili.backend.module.trip.entity.Route;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface RouteMapper {
-
-    RouteMapper INSTANCE = Mappers.getMapper(RouteMapper.class);
 
     @Mapping(source = "departureCity.id", target = "departureCityId")
     @Mapping(source = "arrivalCity.id", target = "arrivalCityId")

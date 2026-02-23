@@ -1,11 +1,12 @@
 package com.mobili.backend.module.trip.controller.city;
 
-import com.mobili.backend.module.trip.dto.CityDTO;
-import com.mobili.backend.module.trip.dto.mapper.CityMapper;
-import com.mobili.backend.module.trip.service.CityService;
 import lombok.RequiredArgsConstructor;
 import org.mapstruct.factory.Mappers;
 import org.springframework.web.bind.annotation.*;
+
+import com.mobili.backend.module.trip.dto.CityDTO;
+import com.mobili.backend.module.trip.dto.mapper.CityMapper;
+import com.mobili.backend.module.trip.service.CityService;
 
 import java.util.List;
 import java.util.stream.Collectors;

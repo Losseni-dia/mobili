@@ -1,10 +1,12 @@
 package com.mobili.backend.module.trip.dto.mapper;
 
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+
 import com.mobili.backend.module.trip.dto.TripRequestDTO;
 import com.mobili.backend.module.trip.dto.TripResponseDTO;
 import com.mobili.backend.module.trip.entity.Trip;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+
 
 @Mapper
 public interface TripMapper {

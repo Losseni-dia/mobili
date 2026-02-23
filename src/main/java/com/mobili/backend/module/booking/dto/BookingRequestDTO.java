@@ -12,10 +12,10 @@ public class BookingRequestDTO {
     private Long tripId;
 
     @NotBlank(message = "Le prénom est obligatoire")
-    private String firstName;
+    private String firstname;
 
     @NotBlank(message = "Le nom est obligatoire")
-    private String lastName;
+    private String lastname;
 
     @NotBlank(message = "Le numéro de téléphone est obligatoire")
     @Pattern(regexp = "^\\+?[0-9]{8,15}$", message = "Format de téléphone invalide")

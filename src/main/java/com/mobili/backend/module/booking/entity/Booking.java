@@ -1,7 +1,11 @@
 package com.mobili.backend.module.booking.entity;
 
+
+
 import com.mobili.backend.module.trip.entity.Trip;
+
 import com.mobili.backend.shared.abstractEntity.AbstractEntity;
+
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -19,10 +23,10 @@ public class Booking extends AbstractEntity {
     private Trip trip;
 
     @Column(nullable = false)
-    private String passengerFirstname;
+    private String firstname;
 
     @Column(nullable = false)
-    private String passengerLastname;
+    private String lastname;
 
     @Column(nullable = false)
     private String passengerPhone;

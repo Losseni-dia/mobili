@@ -2,8 +2,9 @@ package com.mobili.backend.module.trip.service;
 
 import com.mobili.backend.module.trip.entity.Trip;
 import com.mobili.backend.module.trip.repository.TripRepository;
-import com.mobili.backend.shared.MobiliError.exception.MobiliErrorCode;
-import com.mobili.backend.shared.MobiliError.exception.MobiliException;
+import com.mobili.backend.shared.mobiliError.exception.MobiliErrorCode;
+import com.mobili.backend.shared.mobiliError.exception.MobiliException;
+
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

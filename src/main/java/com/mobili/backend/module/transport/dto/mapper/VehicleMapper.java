@@ -1,10 +1,10 @@
 package com.mobili.backend.module.transport.dto.mapper;
 
-import com.mobili.backend.module.transport.dto.VehicleDTO;
-import com.mobili.backend.module.transport.entity.Vehicle;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import com.mobili.backend.module.transport.dto.VehicleDTO;
+import com.mobili.backend.module.transport.entity.Vehicle;
 @Mapper
 public interface VehicleMapper {
 

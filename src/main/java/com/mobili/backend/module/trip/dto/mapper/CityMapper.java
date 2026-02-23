@@ -1,9 +1,9 @@
 package com.mobili.backend.module.trip.dto.mapper;
 
+import org.mapstruct.Mapper;
+
 import com.mobili.backend.module.trip.dto.CityDTO;
 import com.mobili.backend.module.trip.entity.City;
-
-import org.mapstruct.Mapper;
 
 @Mapper
 public interface CityMapper {

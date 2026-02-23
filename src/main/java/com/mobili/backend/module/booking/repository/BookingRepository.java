@@ -1,8 +1,10 @@
 package com.mobili.backend.module.booking.repository;
 
-import com.mobili.backend.module.booking.entity.Booking;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
+import com.mobili.backend.module.booking.entity.Booking;
+
 import java.util.List;
 
 @Repository

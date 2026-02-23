@@ -1,11 +1,12 @@
 package com.mobili.backend.module.transport.controller.vehicule;
 
-import com.mobili.backend.module.transport.dto.VehicleDTO;
-import com.mobili.backend.module.transport.dto.mapper.VehicleMapper;
-import com.mobili.backend.module.transport.service.VehicleService;
 import lombok.RequiredArgsConstructor;
 import org.mapstruct.factory.Mappers;
 import org.springframework.web.bind.annotation.*;
+
+import com.mobili.backend.module.transport.dto.VehicleDTO;
+import com.mobili.backend.module.transport.dto.mapper.VehicleMapper;
+import com.mobili.backend.module.transport.service.VehicleService;
 
 import java.util.List;
 import java.util.stream.Collectors;

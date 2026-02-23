@@ -1,14 +1,15 @@
 package com.mobili.backend.module.booking.dto;
 
-import com.mobili.backend.module.booking.entity.BookingStatus;
 import lombok.Data;
 import java.time.LocalDateTime;
+
+import com.mobili.backend.module.booking.entity.BookingStatus;;
 
 @Data
 public class BookingResponseDTO {
     private Long id;
-    private String firstName;
-    private String lastName;
+    private String firstname;
+    private String lastname;
     private String passengerPhone;
     private Integer seatNumber;
     private BookingStatus status;

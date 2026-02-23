@@ -19,7 +19,6 @@ public class RouteDTO {
     @NotNull(message = "La ville d'arrivée est obligatoire")
     private Long arrivalCityId;
 
-    // Champs en lecture seule pour le front (remplis par le mapper)
     private String departureCityName;
     private String arrivalCityName;
 

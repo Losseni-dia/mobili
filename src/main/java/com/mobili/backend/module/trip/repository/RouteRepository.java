@@ -1,9 +1,11 @@
 package com.mobili.backend.module.trip.repository;
 
 
-import com.mobili.backend.module.trip.entity.Route;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
+import com.mobili.backend.module.trip.entity.Route;
+
 import java.util.Optional;
 
 @Repository

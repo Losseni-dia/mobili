@@ -1,8 +1,9 @@
 package com.mobili.backend.module.transport.dto.mapper;
 
+import org.mapstruct.Mapper;
+
 import com.mobili.backend.module.transport.dto.CompanyDTO;
 import com.mobili.backend.module.transport.entity.Company;
-import org.mapstruct.Mapper;
 
 @Mapper
 public interface CompanyMapper {

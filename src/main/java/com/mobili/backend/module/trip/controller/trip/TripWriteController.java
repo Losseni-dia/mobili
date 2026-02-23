@@ -1,15 +1,18 @@
 package com.mobili.backend.module.trip.controller.trip;
 
-import com.mobili.backend.module.trip.dto.TripRequestDTO;
-import com.mobili.backend.module.trip.dto.TripResponseDTO;
-import com.mobili.backend.module.trip.dto.mapper.TripMapper;
-import com.mobili.backend.module.trip.entity.Trip;
-import com.mobili.backend.module.trip.service.TripService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.mapstruct.factory.Mappers;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import com.mobili.backend.module.trip.dto.TripRequestDTO;
+import com.mobili.backend.module.trip.dto.TripResponseDTO;
+import com.mobili.backend.module.trip.dto.mapper.TripMapper;
+import com.mobili.backend.module.trip.entity.Trip;
+import com.mobili.backend.module.trip.service.TripService;
+
+
 
 @RestController
 @RequestMapping("/trips")

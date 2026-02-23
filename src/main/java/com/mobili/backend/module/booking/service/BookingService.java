@@ -5,8 +5,9 @@ import com.mobili.backend.module.booking.entity.BookingStatus;
 import com.mobili.backend.module.booking.repository.BookingRepository;
 import com.mobili.backend.module.trip.entity.Trip;
 import com.mobili.backend.module.trip.service.TripService;
-import com.mobili.backend.shared.MobiliError.exception.MobiliErrorCode;
-import com.mobili.backend.shared.MobiliError.exception.MobiliException;
+import com.mobili.backend.shared.mobiliError.exception.MobiliErrorCode;
+import com.mobili.backend.shared.mobiliError.exception.MobiliException;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -60,6 +61,7 @@ public class BookingService {
         bookingRepository.save(booking);
     }
 
+    @Transactional(readOnly = true)
     public List<Booking> findAll() {
         return bookingRepository.findAll();
     }

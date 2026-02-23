@@ -1,3 +1,4 @@
+
 package com.mobili.backend.module.trip.entity;
 
 import com.mobili.backend.module.transport.entity.Vehicle;

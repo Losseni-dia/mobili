@@ -1,16 +1,7 @@
-/**Elle lie deux villes. C'est l'itinéraire. */
-
 package com.mobili.backend.module.trip.entity;
 
 import com.mobili.backend.shared.abstractEntity.AbstractEntity;
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,13 +11,15 @@ import lombok.Setter;
 @Setter
 public class Route extends AbstractEntity {
 
-    @ManyToOne // Plusieurs trajets peuvent partir de la même ville
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "departure_city_id", nullable = false)
     private City departureCity;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "arrival_city_id", nullable = false)
     private City arrivalCity;
 
-    private Double priceBase; // Prix indicatif
+    private Double distanceKm;
+
+    private Integer estimatedDurationMinutes;
 }
