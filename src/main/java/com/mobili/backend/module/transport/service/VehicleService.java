@@ -2,7 +2,8 @@ package com.mobili.backend.module.transport.service;
 
 import com.mobili.backend.module.transport.entity.Vehicle;
 import com.mobili.backend.module.transport.repository.VehicleRepository;
-import com.mobili.backend.shared.exception.ResourceNotFoundException;
+import com.mobili.backend.shared.MobiliError.ResourceNotFoundException;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

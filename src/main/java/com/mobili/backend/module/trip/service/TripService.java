@@ -2,7 +2,8 @@ package com.mobili.backend.module.trip.service;
 
 import com.mobili.backend.module.trip.entity.Trip;
 import com.mobili.backend.module.trip.repository.TripRepository;
-import com.mobili.backend.shared.exception.ResourceNotFoundException;
+import com.mobili.backend.shared.MobiliError.ResourceNotFoundException;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
