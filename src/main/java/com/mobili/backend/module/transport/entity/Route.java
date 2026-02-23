@@ -1,3 +1,5 @@
+/**Elle lie deux villes. C'est l'itinéraire. */
+
 package com.mobili.backend.module.transport.entity;
 
 import com.mobili.backend.shared.abstractEntity.AbstractEntity;

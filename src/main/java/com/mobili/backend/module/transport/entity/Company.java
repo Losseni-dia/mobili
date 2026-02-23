@@ -1,3 +1,6 @@
+
+/*La société qui possède les véhicules. */
+
 package com.mobili.backend.module.transport.entity;
 
 import com.mobili.backend.shared.abstractEntity.AbstractEntity;

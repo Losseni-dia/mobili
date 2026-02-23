@@ -1,3 +1,6 @@
+
+/**Essentiel pour définir les points de départ et d'arrivée. */
+
 package com.mobili.backend.module.transport.entity;
 
 import com.mobili.backend.shared.abstractEntity.AbstractEntity;
