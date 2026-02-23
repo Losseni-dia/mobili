@@ -11,7 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/routes")
+@RequestMapping("/v1/routes")
 @RequiredArgsConstructor
 public class RouteWriteController {
 

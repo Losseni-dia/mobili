@@ -11,7 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/companies")
+@RequestMapping("/v1/companies")
 @RequiredArgsConstructor
 public class CompanyWriteController {
 

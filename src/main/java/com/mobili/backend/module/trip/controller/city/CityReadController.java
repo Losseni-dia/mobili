@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/cities")
+@RequestMapping("/v1/cities")
 @RequiredArgsConstructor
 public class CityReadController {
 

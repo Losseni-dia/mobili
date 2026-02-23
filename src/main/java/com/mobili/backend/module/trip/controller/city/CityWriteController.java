@@ -11,7 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/cities")
+@RequestMapping("/v1/cities")
 @RequiredArgsConstructor
 public class CityWriteController {
 

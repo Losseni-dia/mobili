@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/companies")
+@RequestMapping("/v1/companies")
 @RequiredArgsConstructor
 public class CompanyReadController {
 
