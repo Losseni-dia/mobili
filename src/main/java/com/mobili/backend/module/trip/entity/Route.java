@@ -2,7 +2,6 @@
 
 package com.mobili.backend.module.trip.entity;
 
-import com.mobili.backend.module.transport.entity.City;
 import com.mobili.backend.shared.abstractEntity.AbstractEntity;
 
 import jakarta.persistence.Entity;

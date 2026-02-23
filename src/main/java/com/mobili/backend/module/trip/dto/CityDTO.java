@@ -1,4 +1,4 @@
-package com.mobili.backend.module.transport.dto;
+package com.mobili.backend.module.trip.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
