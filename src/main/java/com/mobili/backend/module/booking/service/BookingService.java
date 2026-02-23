@@ -69,4 +69,8 @@ public class BookingService {
                 .orElseThrow(() -> new MobiliException(MobiliErrorCode.RESOURCE_NOT_FOUND,
                         "Réservation #" + id + " inexistante"));
     }
+
+    public List<Booking> findByPhone(String phone) {
+        return bookingRepository.findByPassengerPhoneOrderByCreatedAtDesc(phone);
+    }
 }
