@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/vehicles")
+@RequestMapping("/v1/vehicles")
 @RequiredArgsConstructor
 public class VehicleReadController {
 

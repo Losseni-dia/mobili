@@ -11,11 +11,11 @@ import lombok.Setter;
 @Setter
 public class Route extends AbstractEntity {
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER) // ✅ Change LAZY en EAGER
     @JoinColumn(name = "departure_city_id", nullable = false)
     private City departureCity;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER) // ✅ Change LAZY en EAGER
     @JoinColumn(name = "arrival_city_id", nullable = false)
     private City arrivalCity;
 

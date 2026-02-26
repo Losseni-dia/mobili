@@ -15,7 +15,7 @@ import com.mobili.backend.module.trip.service.TripService;
 
 
 @RestController
-@RequestMapping("/trips")
+@RequestMapping("/v1/trips") // Plus de /api ici
 @RequiredArgsConstructor
 public class TripWriteController {
 

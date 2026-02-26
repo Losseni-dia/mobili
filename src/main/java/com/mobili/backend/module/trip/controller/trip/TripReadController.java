@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/trips")
+@RequestMapping("/v1/trips")
 @RequiredArgsConstructor
 public class TripReadController {
 
@@ -24,11 +24,11 @@ public class TripReadController {
 
     @GetMapping
     public List<TripResponseDTO> getAll() {
-        return tripService.findAll().stream()
+        return tripService.findAllUpcoming().stream()
                 .map(tripMapper::toDto)
                 .collect(Collectors.toList());
     }
-
+    
     @GetMapping("/{id}")
     public TripResponseDTO getById(@PathVariable Long id) {
         return tripMapper.toDto(tripService.findById(id));
@@ -39,8 +39,10 @@ public class TripReadController {
     public List<TripResponseDTO> search(
             @RequestParam String departure,
             @RequestParam String arrival,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+            // ✅ On ajoute required = false
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
 
+        // Ton service gère déjà le cas où date est null (il prend LocalDate.now())
         List<Trip> results = tripService.searchTrips(departure, arrival, date);
 
         return results.stream()

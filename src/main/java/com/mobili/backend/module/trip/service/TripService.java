@@ -22,16 +22,24 @@ public class TripService {
     private final TripRepository tripRepository;
 
     // --- RECHERCHE ---
+    @Transactional(readOnly = true)
     public List<Trip> searchTrips(String departure, String arrival, LocalDate date) {
-        LocalDateTime startOfDay = date.atStartOfDay();
-        LocalDateTime endOfDay = date.atTime(LocalTime.MAX);
+        // Si l'utilisateur ne donne pas de date, on prend "Maintenant" (Heure précise)
+        // Si l'utilisateur donne une date, on prend le début de cette journée là
+        // (00:00)
+        LocalDateTime startSearch = (date != null)
+                ? date.atStartOfDay()
+                : LocalDateTime.now();
 
-        return tripRepository.searchTrips(departure, arrival, startOfDay, endOfDay);
+        // On appelle le repo avec exactement 3 arguments
+        return tripRepository.searchTrips(departure, arrival, startSearch);
     }
 
     // --- READ ---
-    public List<Trip> findAll() {
-        return tripRepository.findAll();
+    public List<Trip> findAllUpcoming() {
+        // On récupère la date/heure actuelle pour ne pas montrer de trajets périmés
+        LocalDateTime now = LocalDateTime.now();
+        return tripRepository.findAllUpcomingTrips(now);
     }
 
     public Trip findById(Long id) {
