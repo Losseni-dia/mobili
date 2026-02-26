@@ -22,6 +22,8 @@ public class Vehicle extends AbstractEntity {
 
     private Boolean available; // Disponibilité du véhicule
 
+    private String imageUrl;
+
     @Enumerated(EnumType.STRING)
     private VehicleType type; // BUS, MINIBUS, CAR
 

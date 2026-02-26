@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.mapstruct.factory.Mappers;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.mobili.backend.module.transport.dto.CompanyDTO;
 import com.mobili.backend.module.transport.dto.mapper.CompanyMapper;
@@ -20,19 +21,28 @@ public class CompanyWriteController {
 
     private final CompanyService companyService;
     private final CompanyMapper companyMapper = Mappers.getMapper(CompanyMapper.class);
-
-    @PostMapping
+@PostMapping(consumes = { "multipart/form-data" })
     @ResponseStatus(HttpStatus.CREATED)
-    public CompanyDTO create(@Valid @RequestBody CompanyDTO dto) {
+    public CompanyDTO create(
+            @RequestPart("company") @Valid CompanyDTO dto,
+            @RequestPart(value = "logo", required = false) MultipartFile logoFile) {
+        
         Company entity = companyMapper.toEntity(dto);
-        return companyMapper.toDto(companyService.save(entity));
+        // On passe le fichier au service pour traitement
+        return companyMapper.toDto(companyService.saveWithLogo(entity, logoFile));
     }
 
-    @PutMapping("/{id}")
-    public CompanyDTO update(@PathVariable Long id, @Valid @RequestBody CompanyDTO dto) {
+    @PutMapping(value = "/{id}", consumes = { "multipart/form-data" })
+    public CompanyDTO update(
+            @PathVariable Long id,
+            @RequestPart("company") @Valid CompanyDTO dto,
+            @RequestPart(value = "logo", required = false) MultipartFile logoFile) {
+
         dto.setId(id);
         Company entity = companyMapper.toEntity(dto);
-        return companyMapper.toDto(companyService.save(entity));
+
+        // On utilise la même logique que le create pour traiter le fichier s'il existe
+        return companyMapper.toDto(companyService.saveWithLogo(entity, logoFile));
     }
 
     @DeleteMapping("/{id}")
