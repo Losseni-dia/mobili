@@ -7,6 +7,7 @@ public class VehicleDTO {
     private Long id;
     private String plateNumber;
     private String model;
+    private String imageUrl;
     private Integer capacity;
     private Boolean available;
     private String type; // BUS, MINIBUS, etc.

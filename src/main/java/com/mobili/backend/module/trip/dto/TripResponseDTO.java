@@ -14,4 +14,5 @@ public class TripResponseDTO {
     private Double price;
     private Integer availableSeats;
     private String vehicleType; // "BUS VIP"
+    private String status;
 }
