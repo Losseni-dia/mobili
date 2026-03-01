@@ -1,12 +1,14 @@
-
 package com.mobili.backend.module.trip.entity;
 
-import com.mobili.backend.module.transport.entity.Vehicle;
-import com.mobili.backend.shared.abstractEntity.AbstractEntity;
-
-import jakarta.persistence.*;
-import lombok.*;
 import java.time.LocalDateTime;
+
+import com.mobili.backend.module.partner.entity.Partner;
+import com.mobili.backend.shared.abstractEntity.AbstractEntity;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "trips")
@@ -16,26 +18,42 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class Trip extends AbstractEntity {
 
-    @ManyToOne
-    @JoinColumn(name = "route_id", nullable = false)
-    private Route route; // L'itinéraire (ex: Abidjan -> Bamako)
+    @Column(name = "departure_city", nullable = false)
+    private String departureCity;
 
-    @ManyToOne
-    @JoinColumn(name = "vehicle_id", nullable = false)
-    private Vehicle vehicle; // Le bus affecté à ce trajet
+    @Column(name = "arrival_city", nullable = false)
+    private String arrivalCity;
 
-    @Column(nullable = false)
-    private LocalDateTime departureDateTime; // Date et heure de départ
+    @Column(name = "boarding_point") // Match avec le boardingPoint du front
+    private String boardingPoint;
 
-    @Column(nullable = false)
-    private LocalDateTime arrivalDateTime; // Date et heure d'arrivée estimée
+    @Column(name = "vehicle_plate_number", nullable = false)
+    private String vehiculePlateNumber;
 
-    @Column(nullable = false)
-    private Double price; // Prix final pour ce départ spécifique
+    @Column(name = "vehicle_image_url")
+    private String vehicleImageUrl;
 
-    @Column(nullable = false)
-    private Integer availableSeats; // Nombre de places encore libres
+    @Column(name = "departure_date_time", nullable = false)
+    private LocalDateTime departureDateTime;
+
+    @Column(name = "price", nullable = false)
+    private Double price;
+
+    @Column(name = "available_seats", nullable = false)
+    private Integer availableSeats;
 
     @Enumerated(EnumType.STRING)
-    private TripStatus status; // PROGRAMMÉ, EN COURS, TERMINÉ, ANNULÉ
+    @Column(name = "status")
+    private TripStatus status;
+
+    @Column(name = "stops_cities", columnDefinition = "TEXT")
+    private String moreInfo;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "vehicle_type", nullable = false)
+    private VehicleType vehicleType;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "partner_id", nullable = false)
+    private Partner partner;
 }

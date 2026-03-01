@@ -1,13 +1,15 @@
 package com.mobili.backend.module.trip.dto;
 
-import jakarta.validation.constraints.FutureOrPresent;
+import java.time.LocalDateTime;
+
+import com.mobili.backend.module.trip.entity.VehicleType; // Import local
+
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
@@ -16,14 +18,26 @@ public class TripRequestDTO {
 
     private Long id;
 
-    @NotNull(message = "La route est obligatoire")
-    private Long routeId;
+    @NotNull(message = "L'ID du partenaire est obligatoire")
+    private Long partnerId;
 
-    @NotNull(message = "Le véhicule est obligatoire")
-    private Long vehicleId;
+    @NotBlank(message = "La ville de départ est obligatoire")
+    private String departureCity;
+
+    @NotBlank(message = "La ville d'arrivée est obligatoire")
+    private String arrivalCity;
+
+    // Harmonisé avec le front-end et l'entité
+    @NotBlank(message = "Le lieu d'embarquement est obligatoire")
+    private String boardingPoint;
+
+    @NotBlank(message = "Le numéro de plaque est obligatoire")
+    private String vehiculePlateNumber;
+
+    @NotNull(message = "Le type de véhicule est obligatoire")
+    private VehicleType vehicleType;
 
     @NotNull(message = "La date et l'heure de départ sont obligatoires")
-    @FutureOrPresent(message = "Le départ ne peut pas être dans le passé")
     private LocalDateTime departureDateTime;
 
     @NotNull(message = "Le prix est obligatoire")
@@ -33,4 +47,7 @@ public class TripRequestDTO {
     @NotNull(message = "Le nombre de places est obligatoire")
     @Min(value = 1, message = "Il doit y avoir au moins une place disponible")
     private Integer availableSeats;
+
+    // Contiendra les villes d'arrêt (stops)
+    private String moreInfo;
 }

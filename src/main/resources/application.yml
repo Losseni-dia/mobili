@@ -1,28 +1,31 @@
-
-# Configuration du serveur (optionnel mais recommandé)
 server:
   port: 8080
 
 spring:
-  # Configuration de la base de données
   datasource:
     url: jdbc:postgresql://localhost:5432/mobili_db
     username: postgres
     password: root
     driver-class-name: org.postgresql.Driver
 
-  # Configuration JPA / Hibernate
   jpa:
     hibernate:
-      # "update" synchronise automatiquement ton schéma DB avec tes entités Java
       ddl-auto: update
     show-sql: true
     properties:
       hibernate:
         format_sql: true
     database-platform: org.hibernate.dialect.PostgreSQLDialect
-    # Performance : évite de garder la session ouverte trop longtemps
     open-in-view: false
 
-
- 
+# application.yml
+mobili:
+  security:
+    jwt:
+      secret-key: ${JWT_SECRET:7a44cf8b6e3f4b5a8d9e2c1b5a8d9e2c1b5a8d9e2c1b5a8d9e2c1b5a8d}
+  upload:
+    root-directory: ./.uploads
+    folders:
+      users: users
+      partners: partners
+      vehicles: vehicles

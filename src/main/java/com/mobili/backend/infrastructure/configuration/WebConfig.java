@@ -9,10 +9,15 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // Le chemin physique doit être absolu
-        String uploadPath = System.getProperty("user.dir") + "/.uploads/";
+        // On définit le chemin ABSOLU sans aucune ambiguïté
+        // Note le "/" à la fin, c'est crucial !
+        String location = "file:///C:/Users/User/Desktop/prj/mobili/backend/.uploads/";
 
-        registry.addResourceHandler("/uploads/**") // L'URL web
-                .addResourceLocations("file:" + uploadPath); // Le dossier réel
+        registry.addResourceHandler("/uploads/**")
+                .addResourceLocations(location)
+                .setCachePeriod(0);
+
+        System.out.println("--- TENTATIVE FINALE ---");
+        System.out.println("Spring surveille ce dossier : " + location);
     }
 }
