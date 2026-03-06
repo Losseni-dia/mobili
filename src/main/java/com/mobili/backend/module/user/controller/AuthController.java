@@ -18,7 +18,7 @@ import com.mobili.backend.module.user.dto.login.AuthResponse;
 import com.mobili.backend.module.user.dto.login.LoginRequest;
 import com.mobili.backend.module.user.dto.mapper.UserMapper;
 import com.mobili.backend.module.user.entity.User;
-import com.mobili.backend.module.user.entity.UserRepository;
+import com.mobili.backend.module.user.repository.UserRepository;
 import com.mobili.backend.module.user.service.UserService;
 import com.mobili.backend.shared.mobiliError.exception.MobiliErrorCode;
 import com.mobili.backend.shared.mobiliError.exception.MobiliException;
@@ -48,7 +48,6 @@ public class AuthController {
         }
 
         String token = jwtService.generateToken(user);
-        System.out.println("TOKEN GÉNÉRÉ POUR JWT.IO : " + token);
         return new AuthResponse(token, user.getLogin(), user.getId());
     }
 

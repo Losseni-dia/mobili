@@ -1,23 +1,30 @@
 package com.mobili.backend.module.trip.entity;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum VehicleType {
-    @JsonProperty("BUS_CLIMATISE")
-    BUS_CLIMATISE,
+    BUS_CLIMATISE("Bus Climatisé"),
+    BUS_CLASSIQUE("Bus Classique"),
+    CAR_CLIMATISE("Car Climatisé"),
+    CAR_CLASSIQUE("Car Classique"),
+    MINIBUS("Minibus"),
+    VAN("Van");
 
-    @JsonProperty("BUS_CLASSIQUE")
-    BUS_CLASSIQUE,
+    private final String label;
 
-    @JsonProperty("CAR_CLIMATISE")
-    CAR_CLIMATISE,
+    VehicleType(String label) {
+        this.label = label;
+    }
 
-    @JsonProperty("CAR_CLASSIQUE")
-    CAR_CLASSIQUE,
+    // On garde getLabel pour le code Java
+    public String getLabel() {
+        return label;
+    }
 
-    @JsonProperty("MINIBUS")
-    MINIBUS,
-
-    @JsonProperty("VAN")
-    VAN
+    // 💡 On force Jackson à utiliser le label pour le JSON
+    @Override
+    @JsonValue
+    public String toString() {
+        return label;
+    }
 }

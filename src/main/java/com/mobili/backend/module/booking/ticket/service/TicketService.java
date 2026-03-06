@@ -5,6 +5,7 @@ import com.mobili.backend.module.booking.ticket.entity.Ticket;
 import com.mobili.backend.module.booking.ticket.entity.TicketStatus;
 import com.mobili.backend.module.booking.ticket.repository.TicketRepository;
 import com.mobili.backend.module.trip.entity.Trip;
+import com.mobili.backend.module.trip.repository.TripRepository;
 import com.mobili.backend.module.trip.service.TripService;
 import com.mobili.backend.module.user.entity.User;
 import com.mobili.backend.module.user.service.UserService;
@@ -14,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -22,6 +24,7 @@ public class TicketService {
 
     private final TicketRepository ticketRepository;
     private final TripService tripService;
+    private final TripRepository tripRepository;
     private final UserService userService;
 
     @Transactional
@@ -44,19 +47,21 @@ public class TicketService {
 
         // Décrémentation
         trip.setAvailableSeats(trip.getAvailableSeats() - 1);
-        tripService.save(trip);
+        tripRepository.save(trip);
 
         return ticketRepository.save(ticket);
     }
 
     @Transactional
-    public void createFromBooking(Booking booking, String name) {
+    public void createFromBooking(Booking booking, String name, String seatNumber) {
         Ticket ticket = new Ticket();
         ticket.setBooking(booking);
         ticket.setTrip(booking.getTrip());
         ticket.setPassenger(booking.getCustomer()); // Le compte qui a payé
 
         ticket.setPassengerName(name); // Le nom spécifique (Jean ou Awa)
+
+        ticket.setSeatNumber(seatNumber);
 
         ticket.setAmountPaid(booking.getTrip().getPrice());
         ticketRepository.save(ticket);
@@ -83,7 +88,7 @@ public class TicketService {
             // On rend la place au voyage
             Trip trip = ticket.getTrip();
             trip.setAvailableSeats(trip.getAvailableSeats() + 1);
-            tripService.save(trip);
+            tripRepository.save(trip);
 
             ticketRepository.save(ticket);
         }
@@ -109,9 +114,20 @@ public class TicketService {
                     MobiliErrorCode.TICKET_CANCELLED,
                     "Accès refusé : Ce ticket a été annulé par le client ou le système.");
         }
+        if (ticket.getTrip().getDepartureDateTime().isBefore(LocalDateTime.now().minusHours(1))) {
+            throw new MobiliException(
+                    MobiliErrorCode.TICKET_EXPIRED,
+                    "Ce ticket a expiré car la date du voyage est passée.");
+        }
 
         // 3. Validation du passage
         ticket.setStatus(TicketStatus.UTILISÉ);
         return ticketRepository.save(ticket);
+    }
+
+    @Transactional(readOnly = true)
+    public List<String> getOccupiedSeatsForTrip(Long tripId) {
+        // Cette méthode doit appeler un nouveau findOccupiedSeats dans ton Repository
+        return ticketRepository.findOccupiedSeatNumbersByTripId(tripId);
     }
 }

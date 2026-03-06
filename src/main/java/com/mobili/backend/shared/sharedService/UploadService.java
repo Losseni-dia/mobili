@@ -13,10 +13,10 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class UploadService {
 
-    @Value("${mobili.upload.root-directory}")
+    @Value("${mobili.backend.upload.root-directory}")
     private String rootDirectory;
 
-    @Value("${mobili.upload.folders.users}")
+    @Value("${mobili.backend.upload.users}")
     private String usersFolder;
 
     public String saveImage(MultipartFile file, String folder) {

@@ -1,5 +1,6 @@
 package com.mobili.backend.module.partner.controller;
 
+import com.mobili.backend.infrastructure.security.authentication.UserPrincipal;
 import com.mobili.backend.module.partner.dto.PartnerProfileDTO;
 import com.mobili.backend.module.partner.dto.PartnerRegisterDTO;
 import com.mobili.backend.module.partner.dto.mapper.PartnerMapper;
@@ -11,6 +12,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -28,34 +30,34 @@ public class PartnerWriteController {
     @ResponseStatus(HttpStatus.CREATED)
     public PartnerProfileDTO register(
             @RequestPart("partner") @Valid PartnerRegisterDTO dto,
-            @RequestPart(value = "logo", required = false) MultipartFile logoFile) {
+            @RequestPart(value = "logo", required = false) MultipartFile logoFile,
+            @AuthenticationPrincipal UserPrincipal principal) {
 
+        // 1. On transforme le DTO d'inscription en Entité
         Partner entity = partenaireMapper.toEntity(dto);
 
-        if (logoFile != null && !logoFile.isEmpty()) {
-            String path = uploadService.saveImage(logoFile, "logos");
-            entity.setLogoUrl(path);
-        }
+        // 2. On délègue TOUT au service :
+        // - Liaison avec l'Owner (Maya)
+        // - Promotion du rôle PARTNER
+        // - Upload du logo dans le dossier "partners" (via ta méthode handleLogoUpload)
+        Partner savedPartner = partenaireService.save(entity, logoFile, principal);
 
-        return partenaireMapper.toProfileDto(partenaireService.save(entity));
+        return partenaireMapper.toProfileDto(savedPartner);
     }
 
     // MISE À JOUR DU PROFIL
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public PartnerProfileDTO update(
             @PathVariable Long id,
-            @RequestPart("partenaire") @Valid PartnerProfileDTO dto,
-            @RequestPart(value = "logo", required = false) MultipartFile logoFile) {
+            @RequestPart("partner") @Valid PartnerProfileDTO dto,
+            @RequestPart(value = "logo", required = false) MultipartFile logoFile,
+            @AuthenticationPrincipal UserPrincipal principal) {
 
         dto.setId(id);
         Partner entity = partenaireMapper.toEntity(dto);
 
-        if (logoFile != null && !logoFile.isEmpty()) {
-            String path = uploadService.saveImage(logoFile, "logos");
-            entity.setLogoUrl(path);
-        }
-
-        return partenaireMapper.toProfileDto(partenaireService.save(entity));
+        // On passe l'entité, le fichier et le principal au service
+        return partenaireMapper.toProfileDto(partenaireService.save(entity, logoFile, principal));
     }
 
     @PatchMapping("/{id}/toggle")

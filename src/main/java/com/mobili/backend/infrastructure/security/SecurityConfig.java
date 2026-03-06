@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -17,6 +18,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 
 import com.mobili.backend.infrastructure.security.token.JwtAuthenticationFilter;
 
@@ -24,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -36,21 +39,35 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/v1/auth/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/v1/trips/**").permitAll()
+                        // 1. ACCÈS PUBLIC
                         .requestMatchers("/uploads/**").permitAll()
-                        .requestMatchers("/v1/bookings/**").hasAnyAuthority("USER", "PARTNER")
-                        .requestMatchers("/v1/users/me").hasAnyRole("USER", "ADMIN","PARTNER")
-                        .requestMatchers("/v1/trips/**").hasAnyRole("ADMIN", "PARTNER")
-                        // 1. D'abord, on autorise l'inscription (POST) pour tous les connectés
-                        .requestMatchers(HttpMethod.POST, "/v1/partners").permitAll()
+                        .requestMatchers("/v1/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/v1/trips", "/v1/trips/**").permitAll()
 
-                        // 2. Ensuite, on autorise les partenaires à modifier leur propre profil
-                        .requestMatchers(HttpMethod.PUT, "/v1/partners/**").hasRole("PARTNER")
+                        // 2. INSCRIPTION PARTENAIRE (Utilisateur déjà connecté)
+                        .requestMatchers(HttpMethod.POST, "/v1/partners").authenticated()
 
-                        // 3. Enfin, le reste de /v1/partners est pour l'ADMIN (GET all, DELETE, etc.)
-                        .requestMatchers("/v1/partners/**").hasRole("ADMIN")
-                        .anyRequest().authenticated()) // La parenthèse doit se fermer ici
+                        // 3. GESTION DES TRAJETS (POST, PUT, DELETE)
+                        // Note : hasAnyAuthority est plus fiable car il matche exactement
+                        // "ROLE_PARTNER"
+                        .requestMatchers(HttpMethod.POST, "/v1/trips", "/v1/trips/**")
+                        .hasAnyAuthority("ROLE_PARTNER", "ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/v1/trips/**").hasAnyAuthority("ROLE_PARTNER", "ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/v1/trips/**")
+                        .hasAnyAuthority("ROLE_PARTNER", "ROLE_ADMIN")
+
+                        // 4. PROFIL ET RÉSERVATIONS
+                        .requestMatchers("/v1/auth/me").hasAnyAuthority("ROLE_USER", "ROLE_PARTNER", "ROLE_ADMIN")
+                        .requestMatchers("/v1/bookings/**").hasAnyAuthority("ROLE_USER", "ROLE_PARTNER")
+
+                        // 5. ADMINISTRATION DES PARTENAIRES
+                        .requestMatchers(HttpMethod.PUT, "/v1/partners/**")
+                        .hasAnyAuthority("ROLE_PARTNER", "ROLE_ADMIN")
+                        .requestMatchers("/v1/partners/**").hasAnyAuthority("ROLE_ADMIN")
+                        .requestMatchers("/v1/partners/my-company").hasAnyRole("PARTNER", "ADMIN")
+                        .requestMatchers("/v1/admin/**").hasAnyAuthority("ROLE_ADMIN")
+
+                        .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthFilter,
                         org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
 
@@ -58,19 +75,23 @@ public class SecurityConfig {
     }
 
     @Bean
+    public StandardServletMultipartResolver multipartResolver() {
+        return new StandardServletMultipartResolver();
+    }
+
+    @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200")); // Ton front
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept"));
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration); // On applique à TOUTES les routes
+        source.registerCorsConfiguration("/**", configuration);
         return source;
     }
 
-    // À ajouter dans SecurityConfig.java
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
@@ -78,7 +99,6 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        // BCrypt est le standard actuel pour sécuriser les mots de passe
         return new BCryptPasswordEncoder();
     }
 }

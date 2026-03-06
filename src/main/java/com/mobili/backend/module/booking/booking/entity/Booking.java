@@ -22,11 +22,11 @@ public class Booking extends AbstractEntity {
     @Column(nullable = false, unique = true)
     private String reference;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
     private User customer;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "trip_id", nullable = false)
     private Trip trip;
 
@@ -42,7 +42,6 @@ public class Booking extends AbstractEntity {
 
     private LocalDateTime bookingDate;
 
-    // --- AJOUT ICI ---
     @ElementCollection
     @CollectionTable(name = "booking_passenger_names", joinColumns = @JoinColumn(name = "booking_id"))
     @Column(name = "passenger_name")
@@ -50,6 +49,11 @@ public class Booking extends AbstractEntity {
 
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
     private List<Ticket> tickets = new ArrayList<>();
+
+    @ElementCollection
+    @CollectionTable(name = "booking_seat_numbers", joinColumns = @JoinColumn(name = "booking_id"))
+    @Column(name = "seat_number")
+    private List<String> seatNumbers = new ArrayList<>(); // Stockera "1", "2", "15", etc.
 
     @PrePersist
     public void initBooking() {

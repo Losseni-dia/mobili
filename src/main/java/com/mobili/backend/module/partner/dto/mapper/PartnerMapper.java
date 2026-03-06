@@ -1,7 +1,9 @@
 package com.mobili.backend.module.partner.dto.mapper;
 
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
+import com.mobili.backend.module.admin.dto.PartnerAdminResponse;
 import com.mobili.backend.module.partner.dto.PartnerProfileDTO;
 import com.mobili.backend.module.partner.dto.PartnerRegisterDTO;
 import com.mobili.backend.module.partner.entity.Partner;
@@ -17,4 +19,7 @@ public interface PartnerMapper {
 
     // Pour l'affichage (Entity -> Profile)
     PartnerProfileDTO toProfileDto(Partner partner);
+
+    @Mapping(target = "ownerName", expression = "java(partner.getOwner() != null ? partner.getOwner().getFirstname() + \" \" + partner.getOwner().getLastname() : \"Sans propriétaire\")")
+    PartnerAdminResponse toAdminDto(Partner partner);
 }

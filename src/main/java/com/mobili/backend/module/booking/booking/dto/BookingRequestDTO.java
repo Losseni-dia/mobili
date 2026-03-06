@@ -13,19 +13,22 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BookingRequestDTO {
-
     @NotNull(message = "L'ID du voyage est obligatoire")
     private Long tripId;
 
     @NotNull(message = "L'ID de l'utilisateur est obligatoire")
     private Long userId;
 
-    @NotEmpty(message = "La liste des passagers ne peut pas être vide")
-    private List<String> passengerNames;
+    @NotEmpty(message = "La sélection des sièges est obligatoire")
+    private List<SeatSelectionDTO> selections; // Contient nom + siège
 
     @NotNull(message = "Le nombre de places est obligatoire")
-    @Min(value = 1, message = "Vous devez réserver au moins une place")
+    @Min(value = 1)
     private Integer numberOfSeats;
 
-    // Le prix total sera calculé côté serveur pour éviter les fraudes
+    @Data
+    public static class SeatSelectionDTO {
+        private String passengerName;
+        private String seatNumber;
+    }
 }

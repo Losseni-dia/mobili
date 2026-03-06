@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import com.mobili.backend.module.trip.entity.Trip;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface TripRepository extends JpaRepository<Trip, Long> {
@@ -30,4 +31,10 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
                         "AND t.availableSeats > 0 " +
                         "ORDER BY t.departureDateTime ASC")
         List<Trip> findAllUpcomingTrips(@Param("startDateTime") LocalDateTime startDateTime);
+
+        @Query("SELECT t FROM Trip t LEFT JOIN FETCH t.partner WHERE t.id = :id")
+        Optional<Trip> findByIdWithPartner(@Param("id") Long id);
+
+        @Query("SELECT t FROM Trip t LEFT JOIN FETCH t.partner")
+        List<Trip> findAllWithPartner();
 }

@@ -1,11 +1,14 @@
 package com.mobili.backend.module.user.dto;
 
-import lombok.Builder;
+import java.util.List;
+
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import java.util.Set;
+import lombok.NoArgsConstructor;
 
 @Data
-@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ProfileDTO {
     private Long id;
     private String firstname;
@@ -14,8 +17,7 @@ public class ProfileDTO {
     private String email;
     private String avatarUrl;
     private boolean enabled;
-
-    // Noms des rôles pour gérer les accès dans Angular
-    private Set<String> roles;
+    private List<String> roles;
+    private Long partnerId; // 💡 AJOUTE CETTE LIGNE
     private Integer totalBookingsCount;
 }

@@ -1,7 +1,7 @@
 package com.mobili.backend.infrastructure.security.authentication;
 
 import com.mobili.backend.module.user.entity.User;
-import com.mobili.backend.module.user.entity.UserRepository;
+import com.mobili.backend.module.user.repository.UserRepository;
 import com.mobili.backend.shared.mobiliError.exception.MobiliErrorCode;
 import com.mobili.backend.shared.mobiliError.exception.MobiliException;
 import lombok.RequiredArgsConstructor;

@@ -1,9 +1,12 @@
 package com.mobili.backend.module.partner.entity;
 
+import com.mobili.backend.module.user.entity.User;
 import com.mobili.backend.shared.abstractEntity.AbstractEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -31,6 +34,10 @@ public class Partner extends AbstractEntity {
     private String phone;
 
     private boolean enabled = true; // Permet à l'admin de bloquer la société
+
+    @OneToOne // Un partenaire a un seul propriétaire
+    @JoinColumn(name = "user_id", unique = true)
+    private User owner;
 
     
 }

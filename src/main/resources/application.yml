@@ -23,9 +23,9 @@ mobili:
   security:
     jwt:
       secret-key: ${JWT_SECRET:7a44cf8b6e3f4b5a8d9e2c1b5a8d9e2c1b5a8d9e2c1b5a8d9e2c1b5a8d}
-  upload:
-    root-directory: ./.uploads
-    folders:
+  backend:
+    upload:
+      root-directory: uploads
       users: users
       partners: partners
       vehicles: vehicles

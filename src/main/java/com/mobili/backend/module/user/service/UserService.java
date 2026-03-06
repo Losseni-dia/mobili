@@ -1,6 +1,7 @@
 package com.mobili.backend.module.user.service;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -9,7 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.mobili.backend.module.user.entity.User;
-import com.mobili.backend.module.user.entity.UserRepository;
+import com.mobili.backend.module.user.repository.UserRepository;
 import com.mobili.backend.module.user.role.Role;
 import com.mobili.backend.module.user.role.RoleRepository;
 import com.mobili.backend.module.user.role.UserRole;
@@ -30,10 +31,17 @@ public class UserService {
     private final com.mobili.backend.shared.sharedService.UploadService uploadService; // On réutilise ton service !
 
     public User findById(Long id) {
-        return userRepository.findById(id)
+        // 💡 On utilise la méthode avec FETCH pour éviter la
+        // LazyInitializationException
+        return userRepository.findByIdWithEverything(id)
                 .orElseThrow(() -> new MobiliException(
                         MobiliErrorCode.RESOURCE_NOT_FOUND,
                         "Utilisateur introuvable (ID: " + id + ")"));
+    }
+
+    public List<User> findAllUsers() {
+        // On récupère tout simplement les entités
+        return userRepository.findAll();
     }
 
     @Transactional
@@ -49,7 +57,7 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setEnabled(true);
 
-        assignRoles(user, Collections.singleton(UserRole.ROLE_USER));
+        assignRoles(user, Collections.singleton(UserRole.USER));
 
         // Utilisation du service partagé pour l'avatar
         if (avatarFile != null && !avatarFile.isEmpty()) {
@@ -65,21 +73,25 @@ public class UserService {
     public User updateUser(Long id, User updatedInfo, Set<UserRole> roleNames, MultipartFile avatarFile) {
         User existingUser = findById(id);
 
+        // Mise à jour des infos de base
         existingUser.setFirstname(updatedInfo.getFirstname());
         existingUser.setLastname(updatedInfo.getLastname());
         existingUser.setEmail(updatedInfo.getEmail());
         existingUser.setLogin(updatedInfo.getLogin());
 
+        // Hashage du mot de passe seulement s'il est fourni
         if (updatedInfo.getPassword() != null && !updatedInfo.getPassword().isBlank()) {
             existingUser.setPassword(passwordEncoder.encode(updatedInfo.getPassword()));
         }
 
+        // Gestion des rôles (si passés, sinon on garde les anciens)
         if (roleNames != null && !roleNames.isEmpty()) {
             assignRoles(existingUser, roleNames);
         }
 
+        // Gestion de l'avatar dans le dossier "users" (configuré dans ton YAML)
         if (avatarFile != null && !avatarFile.isEmpty()) {
-            String path = uploadService.saveImage(avatarFile, "avatars");
+            String path = uploadService.saveImage(avatarFile, "users");
             existingUser.setAvatarUrl(path);
         }
 
@@ -100,4 +112,13 @@ public class UserService {
                 .collect(Collectors.toSet());
         user.setRoles(roles);
     }
+
+    @Transactional
+    public User findByLogin(String login) {
+        return userRepository.findByLogin(login)
+                .orElseThrow(() -> new MobiliException(
+                        MobiliErrorCode.RESOURCE_NOT_FOUND,
+                        "Utilisateur avec le login " + login + " introuvable."));
+    }
+
 }

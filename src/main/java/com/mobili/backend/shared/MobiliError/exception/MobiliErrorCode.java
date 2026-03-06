@@ -17,6 +17,7 @@ public enum MobiliErrorCode {
                     
     TICKET_ALREADY_USED(HttpStatus.CONFLICT, "BKG-002", "Ce ticket a déjà été utilisé."),
     TICKET_CANCELLED(HttpStatus.CONFLICT, "BKG-003", "Ce ticket a été annulé et ne peut plus être utilisé."),
+             TICKET_EXPIRED(HttpStatus.CONFLICT, "BKG-004", "Désolé, ce ticket a expiré"),
                             
     DUPLICATE_RESOURCE(HttpStatus.CONFLICT, "MOB-004", "Cette ressource existe déjà."),
 

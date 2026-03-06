@@ -1,13 +1,19 @@
 package com.mobili.backend.module.trip.service;
 
+import com.mobili.backend.infrastructure.security.authentication.UserPrincipal;
+import com.mobili.backend.module.partner.entity.Partner;
+import com.mobili.backend.module.partner.service.PartnerService;
 import com.mobili.backend.module.trip.entity.Trip;
+import com.mobili.backend.module.trip.entity.TripStatus;
 import com.mobili.backend.module.trip.repository.TripRepository;
 import com.mobili.backend.shared.mobiliError.exception.MobiliErrorCode;
 import com.mobili.backend.shared.mobiliError.exception.MobiliException;
+import com.mobili.backend.shared.sharedService.UploadService;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -18,9 +24,9 @@ import java.util.List;
 public class TripService {
 
     private final TripRepository tripRepository;
-    // On n'injecte pas le Mapper ici car le Service manipule généralement des
-    // Entités.
-    // C'est le Controller qui utilisera le Mapper pour transformer les DTOs.
+    private final PartnerService partenaireService;
+    private final UploadService uploadService;
+   
 
     // --- RECHERCHE ---
     @Transactional(readOnly = true)
@@ -52,24 +58,54 @@ public class TripService {
 
     @Transactional(readOnly = true)
     public Trip findById(Long id) {
-        return tripRepository.findById(id)
+        // 💡 On utilise la méthode avec le FETCH JOIN
+        return tripRepository.findByIdWithPartner(id)
                 .orElseThrow(() -> new MobiliException(
                         MobiliErrorCode.RESOURCE_NOT_FOUND,
                         "Voyage introuvable (ID: " + id + ")"));
     }
 
-    // --- WRITE ---
     @Transactional
-    public Trip save(Trip trip) {
-        // Logique métier : Initialisation du statut par défaut si vide
-        if (trip.getStatus() == null) {
-            // Assure-toi que TripStatus.OPEN ou PLANNED existe dans ton Enum
-            // trip.setStatus(TripStatus.OPEN);
+    public Trip save(Trip trip, MultipartFile tripImage, UserPrincipal principal) {
+
+        // 1. Sécurité : Récupération du partenaire (OK)
+        Partner partner = partenaireService.findByOwnerId(principal.getUser().getId());
+        if (partner == null) {
+            throw new MobiliException(MobiliErrorCode.ACCESS_DENIED, "Compte partenaire introuvable");
+        }
+        trip.setPartner(partner);
+
+        // 💡 LE FIX EST ICI : GESTION DE L'EXISTANT
+        if (trip.getId() != null) {
+            // On récupère le trajet actuel en base avant de le modifier
+            Trip existingTrip = tripRepository.findById(trip.getId())
+                    .orElseThrow(() -> new MobiliException(MobiliErrorCode.RESOURCE_NOT_FOUND, "Trajet introuvable"));
+
+            // Si aucune nouvelle image n'est fournie, on REPREND l'ancienne URL
+            if (tripImage == null || tripImage.isEmpty()) {
+                trip.setVehicleImageUrl(existingTrip.getVehicleImageUrl());
+            }
+
+            // On peut aussi préserver le statut s'il n'est pas fourni dans le DTO
+            if (trip.getStatus() == null) {
+                trip.setStatus(existingTrip.getStatus());
+            }
+        } else {
+            // CAS CRÉATION : Statut par défaut
+            if (trip.getStatus() == null) {
+                trip.setStatus(TripStatus.PROGRAMMÉ);
+            }
         }
 
-        // Logique métier : Sécurité sur le prix
+        // 2. Validation prix (OK)
         if (trip.getPrice() != null && trip.getPrice() < 0) {
             throw new MobiliException(MobiliErrorCode.VALIDATION_ERROR, "Le prix ne peut pas être négatif");
+        }
+
+        // 3. Traitement de la NOUVELLE image (si fournie)
+        if (tripImage != null && !tripImage.isEmpty()) {
+            String path = uploadService.saveImage(tripImage, "vehicles");
+            trip.setVehicleImageUrl(path);
         }
 
         return tripRepository.save(trip);

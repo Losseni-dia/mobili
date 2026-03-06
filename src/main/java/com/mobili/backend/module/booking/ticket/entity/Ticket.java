@@ -47,6 +47,14 @@ public class Ticket extends AbstractEntity {
     @JoinColumn(name = "booking_id", nullable = false)
     private Booking booking;
 
+    @Column(nullable = false)
+    private String seatNumber; // Ex: "A1", "12"
+
+    @Column(nullable = false)
+    private boolean scanned = false; // Pour la validation à la montée
+
+    private LocalDateTime scannedAt;
+
     @PrePersist
     public void generateTicketNumber() {
         if (this.ticketNumber == null) {

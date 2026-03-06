@@ -1,20 +1,29 @@
 package com.mobili.backend.module.trip.controller;
 
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import org.mapstruct.factory.Mappers;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal; // Important
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.mobili.backend.infrastructure.security.authentication.UserPrincipal;
 import com.mobili.backend.module.trip.dto.TripRequestDTO;
 import com.mobili.backend.module.trip.dto.TripResponseDTO;
 import com.mobili.backend.module.trip.dto.mapper.TripMapper;
 import com.mobili.backend.module.trip.entity.Trip;
 import com.mobili.backend.module.trip.service.TripService;
-import com.mobili.backend.shared.sharedService.UploadService;
+
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/v1/trips")
@@ -22,37 +31,40 @@ import com.mobili.backend.shared.sharedService.UploadService;
 public class TripWriteController {
 
     private final TripService tripService;
-    private final UploadService uploadService;
-    private final TripMapper tripMapper = Mappers.getMapper(TripMapper.class);
+    private final TripMapper tripMapper;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAnyRole('PARTNER', 'ADMIN')")
     public TripResponseDTO create(
             @RequestPart("trip") @Valid TripRequestDTO dto,
-            @RequestPart(value = "vehicleImage", required = false) MultipartFile file) {
+            @RequestPart(value = "vehicleImage", required = false) MultipartFile file,
+            @AuthenticationPrincipal UserPrincipal principal) {
 
         Trip entity = tripMapper.toEntity(dto);
 
-        if (file != null && !file.isEmpty()) {
-            // On range les photos de bus dans un dossier "vehicles"
-            String path = uploadService.saveImage(file, "vehicles");
-            entity.setVehicleImageUrl(path);
-        }
-
-        return tripMapper.toDto(tripService.save(entity));
+        // On délègue tout au nouveau service (image + partenaire)
+        return tripMapper.toDto(tripService.save(entity, file, principal));
     }
 
-    @PutMapping("/{id}")
-    public TripResponseDTO update(@PathVariable Long id, @Valid @RequestBody TripRequestDTO dto) {
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasAnyRole('PARTNER', 'ADMIN')")
+    public TripResponseDTO update(
+            @PathVariable Long id,
+            @RequestPart("trip") @Valid TripRequestDTO dto, // Changé en @RequestPart
+            @RequestPart(value = "vehicleImage", required = false) MultipartFile file,
+            @AuthenticationPrincipal UserPrincipal principal) {
+
         dto.setId(id);
         Trip entity = tripMapper.toEntity(dto);
-        Trip updatedTrip = tripService.save(entity);
-        return tripMapper.toDto(updatedTrip);
+
+        // Ton service save() gère déjà l'update si l'ID est présent
+        return tripMapper.toDto(tripService.save(entity, file, principal));
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasAnyRole('PARTNER', 'ADMIN')")
     public void delete(@PathVariable Long id) {
         tripService.delete(id);
     }

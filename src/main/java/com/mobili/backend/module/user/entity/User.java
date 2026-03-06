@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.mobili.backend.module.booking.booking.entity.Booking;
+import com.mobili.backend.module.partner.entity.Partner;
 import com.mobili.backend.module.user.role.Role;
 import com.mobili.backend.shared.abstractEntity.AbstractEntity;
 
@@ -17,6 +18,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -52,5 +54,8 @@ public class User extends AbstractEntity {
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
     private List<Booking> bookings = new ArrayList<>();
+
+    @OneToOne(mappedBy = "owner")
+    private Partner partner;
 
 }
