@@ -20,4 +20,5 @@ public class BookingResponseDTO {
     private Double totalPrice;
     private BookingStatus status;
     private LocalDateTime bookingDate;
+    private LocalDateTime paidAt;
 }

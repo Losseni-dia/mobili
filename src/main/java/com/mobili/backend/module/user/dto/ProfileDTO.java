@@ -17,6 +17,7 @@ public class ProfileDTO {
     private String email;
     private String avatarUrl;
     private boolean enabled;
+    private Double balance;
     private List<String> roles;
     private Long partnerId; // 💡 AJOUTE CETTE LIGNE
     private Integer totalBookingsCount;

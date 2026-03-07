@@ -17,12 +17,13 @@ public enum MobiliErrorCode {
                     
     TICKET_ALREADY_USED(HttpStatus.CONFLICT, "BKG-002", "Ce ticket a déjà été utilisé."),
     TICKET_CANCELLED(HttpStatus.CONFLICT, "BKG-003", "Ce ticket a été annulé et ne peut plus être utilisé."),
-             TICKET_EXPIRED(HttpStatus.CONFLICT, "BKG-004", "Désolé, ce ticket a expiré"),
+    TICKET_EXPIRED(HttpStatus.CONFLICT, "BKG-004", "Désolé, ce ticket a expiré"),
                             
     DUPLICATE_RESOURCE(HttpStatus.CONFLICT, "MOB-004", "Cette ressource existe déjà."),
 
     
     BOOKING_ALREADY_CANCELLED(HttpStatus.BAD_REQUEST, "BKG-001", "Cette réservation est déjà annulée."),
+            INSUFFICIENT_BALANCE(HttpStatus.CONFLICT, "PAY-001", "Solde insuffisant !"),
         
     INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "AUTH-001", "Identifiants incorrects."),
     ACCESS_DENIED(HttpStatus.FORBIDDEN, "AUTH-002", "Vous n'avez pas les droits nécessaires.");

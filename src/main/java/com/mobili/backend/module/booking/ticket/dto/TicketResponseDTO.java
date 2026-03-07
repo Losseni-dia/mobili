@@ -14,4 +14,6 @@ public class TicketResponseDTO {
     private String vehiculePlateNumber;
     private Double price;
     private String status;
+    private String partnerName;
+    private String seatNumber;
 }

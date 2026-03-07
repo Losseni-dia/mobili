@@ -41,27 +41,16 @@ public class BookingController {
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('USER')")
     public BookingResponseDTO create(@RequestBody @Valid BookingRequestDTO dto, Principal principal) {
-        // 1. On récupère le login (email ou username) de celui qui est connecté via le
-        // JWT
-        String currentUserLogin = principal.getName();
+        // 1. On récupère l'utilisateur connecté pour la sécurité
+        User user = userService.findByLogin(principal.getName());
 
-        // 2. On récupère l'entité User correspondante
-        User user = userService.findByLogin(currentUserLogin);
+        // 2. On injecte l'ID de l'utilisateur connecté dans le DTO
+        // (Pour être sûr que personne ne triche sur l'ID de l'acheteur)
+        dto.setUserId(user.getId());
 
-        // 3. Extraction des listes (Nom + Sièges)
-        List<String> names = dto.getSelections().stream()
-                .map(BookingRequestDTO.SeatSelectionDTO::getPassengerName)
-                .toList();
-        List<String> seats = dto.getSelections().stream()
-                .map(BookingRequestDTO.SeatSelectionDTO::getSeatNumber)
-                .toList();
-
-        // 4. On passe l'ID de l'utilisateur CONNECTÉ au service, pas celui du DTO
-        Booking booking = bookingService.create(
-                dto.getTripId(),
-                user.getId(),
-                names,
-                seats);
+        // 3. On passe directement le DTO au service
+        // C'est ici que l'erreur "Unresolved compilation" disparaît
+        Booking booking = bookingService.create(dto);
 
         return bookingMapper.toDto(booking);
     }

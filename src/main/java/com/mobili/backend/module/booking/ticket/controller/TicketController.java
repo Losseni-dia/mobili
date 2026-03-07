@@ -3,6 +3,7 @@ package com.mobili.backend.module.booking.ticket.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import com.mobili.backend.module.booking.ticket.dto.TicketRequestDTO;
@@ -35,6 +36,7 @@ public class TicketController {
 
     // VOIR L'HISTORIQUE DES TICKETS D'UN UTILISATEUR
     @GetMapping("/user/{userId}")
+    @Transactional(readOnly = true)
     public List<TicketResponseDTO> getUserTickets(@PathVariable Long userId) {
         return ticketService.findAllByUserId(userId).stream()
                 .map(ticketMapper::toDto)
@@ -57,4 +59,5 @@ public class TicketController {
         // écran
         return ticketMapper.toDto(ticket);
     }
+
 }

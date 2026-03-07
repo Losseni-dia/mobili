@@ -58,4 +58,7 @@ public class User extends AbstractEntity {
     @OneToOne(mappedBy = "owner")
     private Partner partner;
 
+    @Column(nullable = true)
+    private Double balance = 0.0;
+
 }

@@ -20,7 +20,6 @@ public class TripResponseDTO {
     private Double price;
     private Integer availableSeats;
     private String status;
-
     // Contiendra tes villes d'arrêt/étapes (stops_cities en DB)
     private String moreInfo;
 }

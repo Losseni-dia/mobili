@@ -58,7 +58,9 @@ public class SecurityConfig {
 
                         // 4. PROFIL ET RÉSERVATIONS
                         .requestMatchers("/v1/auth/me").hasAnyAuthority("ROLE_USER", "ROLE_PARTNER", "ROLE_ADMIN")
-                        .requestMatchers("/v1/bookings/**").hasAnyAuthority("ROLE_USER", "ROLE_PARTNER")
+                        .requestMatchers("/v1/bookings/**").hasAnyAuthority("ROLE_USER", "ROLE_PARTNER","ROLE_ADMIN")
+                        .requestMatchers("/v1/tickets/**")
+                        .hasAnyAuthority("ROLE_USER", "ROLE_PARTNER", "ROLE_CHAUFFEUR", "ROLE_ADMIN")
 
                         // 5. ADMINISTRATION DES PARTENAIRES
                         .requestMatchers(HttpMethod.PUT, "/v1/partners/**")
@@ -83,8 +85,8 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept", "X-Requested-With"));
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

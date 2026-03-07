@@ -9,10 +9,13 @@ import com.mobili.backend.module.booking.ticket.entity.Ticket;
 @Mapper(componentModel = "spring")
 public interface TicketMapper {
 
-    @Mapping(target = "passengerFullName", expression = "java(ticket.getPassenger().getFirstname() + ' ' + ticket.getPassenger().getLastname())")
-    @Mapping(source = "ticketNumber", target = "qrCodeData") // Le contenu du QR Code
+    // ✅ On prend directement le nom stocké dans l'entité Ticket
+    @Mapping(source = "passengerName", target = "passengerFullName")
+
+    @Mapping(source = "ticketNumber", target = "qrCodeData")
     @Mapping(source = "trip.departureCity", target = "departureCity")
     @Mapping(source = "trip.arrivalCity", target = "arrivalCity")
+    @Mapping(source = "booking.trip.partner.name", target = "partnerName")
     @Mapping(source = "trip.departureDateTime", target = "departureDateTime")
     @Mapping(source = "trip.vehiculePlateNumber", target = "vehiculePlateNumber")
     @Mapping(source = "amountPaid", target = "price")

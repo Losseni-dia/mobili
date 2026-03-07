@@ -12,6 +12,8 @@ import com.mobili.backend.module.user.service.UserService;
 import com.mobili.backend.shared.mobiliError.exception.MobiliErrorCode;
 import com.mobili.backend.shared.mobiliError.exception.MobiliException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +21,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class TicketService {
 
@@ -57,19 +60,24 @@ public class TicketService {
         Ticket ticket = new Ticket();
         ticket.setBooking(booking);
         ticket.setTrip(booking.getTrip());
-        ticket.setPassenger(booking.getCustomer()); // Le compte qui a payé
+        ticket.setPassenger(booking.getCustomer());
 
-        ticket.setPassengerName(name); // Le nom spécifique (Jean ou Awa)
-
+        ticket.setPassengerName(name);
         ticket.setSeatNumber(seatNumber);
-
         ticket.setAmountPaid(booking.getTrip().getPrice());
+
+        // On s'assure que la date de création du ticket est celle du paiement
+        ticket.setBookingDate(LocalDateTime.now());
+        ticket.setStatus(TicketStatus.VALIDÉ);
+
         ticketRepository.save(ticket);
+        log.info("Ticket créé : {} pour le voyage {} (Siège {})",
+                ticket.getPassengerName(), booking.getTrip().getId(), seatNumber);
     }
 
     @Transactional(readOnly = true)
     public List<Ticket> findAllByUserId(Long userId) {
-        return ticketRepository.findByPassengerId(userId);
+        return ticketRepository.findAllByUserIdCustom(userId);
     }
 
     @Transactional
