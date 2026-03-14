@@ -43,6 +43,7 @@ public class SecurityConfig {
                         .requestMatchers("/uploads/**").permitAll()
                         .requestMatchers("/v1/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/v1/trips", "/v1/trips/**").permitAll()
+                        .requestMatchers("/v1/payments/callback").permitAll()
 
                         // 2. INSCRIPTION PARTENAIRE (Utilisateur déjà connecté)
                         .requestMatchers(HttpMethod.POST, "/v1/partners").authenticated()

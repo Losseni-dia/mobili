@@ -3,11 +3,10 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/mobili_db
-    username: postgres
-    password: root
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
-
   jpa:
     hibernate:
       ddl-auto: update
@@ -18,14 +17,19 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     open-in-view: false
 
-# application.yml
 mobili:
   security:
     jwt:
-      secret-key: ${JWT_SECRET:7a44cf8b6e3f4b5a8d9e2c1b5a8d9e2c1b5a8d9e2c1b5a8d9e2c1b5a8d}
+      secret-key: ${JWT_SECRET}
   backend:
     upload:
       root-directory: uploads
       users: users
       partners: partners
       vehicles: vehicles
+
+fedapay:
+  secret:
+    key: ${FEDAPAY_SECRET_KEY}
+  webhook:
+    secret: ${FEDAPAY_WEBHOOK_SECRET}

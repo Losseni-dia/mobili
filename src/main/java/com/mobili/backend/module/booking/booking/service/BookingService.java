@@ -163,6 +163,41 @@ public class BookingService {
                 .collect(Collectors.toList());
     }
 
+    // Dans BookingService.java
+
+    @Transactional
+    public void confirmFedaPayPayment(Long bookingId) {
+        // 1. Récupération
+        Booking booking = bookingRepository.findByIdWithDetails(bookingId)
+                .orElseThrow(() -> new MobiliException(MobiliErrorCode.RESOURCE_NOT_FOUND, "Réservation introuvable"));
+
+        // 2. Vérification du statut
+        if (booking.getStatus() != BookingStatus.PENDING) {
+            log.warn("⚠️ Réservation {} déjà traitée. Statut actuel: {}", bookingId, booking.getStatus());
+            return;
+        }
+
+        // 3. LOGIQUE DE PAIEMENT EXTERNE (On ne touche pas au wallet ici)
+        // L'argent est déjà chez FedaPay. On valide juste la commande.
+
+        // 4. VALIDATION DE LA RÉSERVATION
+        booking.setStatus(BookingStatus.CONFIRMED);
+        booking.setPaidAt(LocalDateTime.now());
+        booking = bookingRepository.save(booking);
+
+        // 5. GÉNÉRATION DES TICKETS (Réutilisation de ta logique existante)
+        List<String> names = new ArrayList<>(booking.getPassengerNames());
+        List<String> seats = new ArrayList<>(booking.getSeatNumbers());
+        Collections.sort(names);
+        Collections.sort(seats);
+
+        for (int i = 0; i < names.size(); i++) {
+            ticketService.createFromBooking(booking, names.get(i), seats.get(i));
+        }
+
+        log.info("✅ Paiement FedaPay confirmé pour le Booking ID: {}", bookingId);
+    }
+
     @Transactional(readOnly = true)
     public Booking findById(Long id) {
         // On utilise la méthode avec JOIN FETCH pour charger trip et customer
