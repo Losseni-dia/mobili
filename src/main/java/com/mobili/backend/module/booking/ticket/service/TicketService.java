@@ -9,8 +9,9 @@ import com.mobili.backend.module.trip.repository.TripRepository;
 import com.mobili.backend.module.trip.service.TripService;
 import com.mobili.backend.module.user.entity.User;
 import com.mobili.backend.module.user.service.UserService;
-import com.mobili.backend.shared.mobiliError.exception.MobiliErrorCode;
-import com.mobili.backend.shared.mobiliError.exception.MobiliException;
+import com.mobili.backend.shared.MobiliError.exception.MobiliErrorCode;
+import com.mobili.backend.shared.MobiliError.exception.MobiliException;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -61,18 +62,21 @@ public class TicketService {
         ticket.setBooking(booking);
         ticket.setTrip(booking.getTrip());
         ticket.setPassenger(booking.getCustomer());
-
         ticket.setPassengerName(name);
         ticket.setSeatNumber(seatNumber);
         ticket.setAmountPaid(booking.getTrip().getPrice());
 
-        // On s'assure que la date de création du ticket est celle du paiement
+        // GENERATION DU NUMERO DE TICKET UNIQUE
+        // Exemple : MOB-ID_BOOKING-ALEATOIRE (ex: MOB-26-X8R)
+        String uniqueCode = "MOB-" + booking.getId() + "-"
+                + java.util.UUID.randomUUID().toString().substring(0, 5).toUpperCase();
+        ticket.setTicketNumber(uniqueCode);
+
         ticket.setBookingDate(LocalDateTime.now());
         ticket.setStatus(TicketStatus.VALIDÉ);
 
         ticketRepository.save(ticket);
-        log.info("Ticket créé : {} pour le voyage {} (Siège {})",
-                ticket.getPassengerName(), booking.getTrip().getId(), seatNumber);
+        log.info("Ticket créé : {} | N°: {} | Siège: {}", name, uniqueCode, seatNumber);
     }
 
     @Transactional(readOnly = true)

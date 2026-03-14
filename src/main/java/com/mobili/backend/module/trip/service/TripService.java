@@ -6,8 +6,8 @@ import com.mobili.backend.module.partner.service.PartnerService;
 import com.mobili.backend.module.trip.entity.Trip;
 import com.mobili.backend.module.trip.entity.TripStatus;
 import com.mobili.backend.module.trip.repository.TripRepository;
-import com.mobili.backend.shared.mobiliError.exception.MobiliErrorCode;
-import com.mobili.backend.shared.mobiliError.exception.MobiliException;
+import com.mobili.backend.shared.MobiliError.exception.MobiliErrorCode;
+import com.mobili.backend.shared.MobiliError.exception.MobiliException;
 import com.mobili.backend.shared.sharedService.UploadService;
 
 import lombok.RequiredArgsConstructor;

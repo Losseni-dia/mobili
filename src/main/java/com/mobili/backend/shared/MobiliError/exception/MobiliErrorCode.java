@@ -1,4 +1,4 @@
-package com.mobili.backend.shared.mobiliError.exception;
+package com.mobili.backend.shared.MobiliError.exception;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;

@@ -1,4 +1,4 @@
-package com.mobili.backend.shared.mobiliError;
+package com.mobili.backend.shared.MobiliError;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 
-import com.mobili.backend.shared.mobiliError.exception.ErrorDetails;
-import com.mobili.backend.shared.mobiliError.exception.MobiliErrorCode;
-import com.mobili.backend.shared.mobiliError.exception.MobiliException;
+import com.mobili.backend.shared.MobiliError.exception.ErrorDetails;
+import com.mobili.backend.shared.MobiliError.exception.MobiliErrorCode;
+import com.mobili.backend.shared.MobiliError.exception.MobiliException;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
