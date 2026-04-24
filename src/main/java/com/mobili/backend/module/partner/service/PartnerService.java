@@ -1,4 +1,6 @@
 package com.mobili.backend.module.partner.service;
+
+import java.security.SecureRandom;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -23,14 +25,49 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PartnerService {
 
+    private static final char[] REG_CODE_ALPHANUM = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789".toCharArray();
+    private static final SecureRandom RANDOM = new SecureRandom();
+
     private final PartnerRepository partenaireRepository;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final UploadService uploadService;
 
+    public Partner getCurrentPartner() {
+        Object principal = org.springframework.security.core.context.SecurityContextHolder
+                .getContext().getAuthentication().getPrincipal();
 
+        if (!(principal instanceof UserPrincipal)) {
+            throw new MobiliException(MobiliErrorCode.ACCESS_DENIED, "Non authentifié");
+        }
 
-    // --- LECTURE ---
+        UserPrincipal userPrincipal = (UserPrincipal) principal;
+
+        if (userPrincipal.getPartnerId() != null) {
+            return partenaireRepository.findById(userPrincipal.getPartnerId())
+                    .orElseThrow(
+                            () -> new MobiliException(MobiliErrorCode.RESOURCE_NOT_FOUND, "Partenaire non trouvé"));
+        }
+        Long userId = userPrincipal.getUser().getId();
+        return partenaireRepository.findByOwnerId(userId)
+                .orElseThrow(() -> new MobiliException(MobiliErrorCode.RESOURCE_NOT_FOUND,
+                        "Aucune entreprise liée à cet utilisateur"));
+    }
+
+    /**
+     * Résout l’entreprise courante (comme {@link #getCurrentPartner()}) et crée
+     * un {@link Partner#getRegistrationCode() code} s’il est encore absent (affichage / API).
+     */
+    @Transactional
+    public Partner getCurrentPartnerEnsuringRegistrationCode() {
+        Partner p = getCurrentPartner();
+        if (p.getRegistrationCode() == null || p.getRegistrationCode().isBlank()) {
+            p.setRegistrationCode(generateUniqueRegistrationCode());
+            p = partenaireRepository.save(p);
+        }
+        return p;
+    }
+
     @Transactional(readOnly = true)
     public List<Partner> findAll() {
         return partenaireRepository.findAll();
@@ -44,52 +81,61 @@ public class PartnerService {
                         "Partenaire introuvable (ID: " + id + ")"));
     }
 
-    // --- ÉCRITURE (Sauvegarde & Mise à jour sécurisée) ---
-  @Transactional
-public Partner save(Partner partenaire, MultipartFile logoFile, UserPrincipal principal) {
-    // 1. CAS DE LA CRÉATION
-    if (partenaire.getId() == null) {
-        User user = userRepository.findByLogin(principal.getUsername())
-                .orElseThrow(() -> new MobiliException(MobiliErrorCode.RESOURCE_NOT_FOUND, "User non trouvé"));
+    @Transactional
+    public Partner save(Partner partenaire, MultipartFile logoFile, UserPrincipal principal) {
+        if (partenaire.getId() == null) {
+            User user = userRepository.findByLogin(principal.getUsername())
+                    .orElseThrow(() -> new MobiliException(MobiliErrorCode.RESOURCE_NOT_FOUND, "User non trouvé"));
 
-        partenaire.setOwner(user);
+            partenaire.setOwner(user);
 
-        Role partnerRole = roleRepository.findByName(UserRole.PARTNER).get();
-        user.getRoles().add(partnerRole);
-        userRepository.save(user);
+            Role partnerRole = roleRepository.findByName(UserRole.PARTNER).get();
+            user.getRoles().add(partnerRole);
+            userRepository.save(user);
 
-        // Gestion du logo à la création
-        handleLogoUpload(partenaire, logoFile);
+            handleLogoUpload(partenaire, logoFile);
 
-        return partenaireRepository.save(partenaire);
+            if (partenaire.getRegistrationCode() == null || partenaire.getRegistrationCode().isBlank()) {
+                partenaire.setRegistrationCode(generateUniqueRegistrationCode());
+            }
+
+            return partenaireRepository.save(partenaire);
+        }
+
+        return partenaireRepository.findById(partenaire.getId())
+                .map(existing -> {
+                    existing.setName(partenaire.getName());
+                    existing.setEmail(partenaire.getEmail());
+                    existing.setPhone(partenaire.getPhone());
+                    existing.setBusinessNumber(partenaire.getBusinessNumber());
+
+                    handleLogoUpload(existing, logoFile);
+
+                    return partenaireRepository.save(existing);
+                })
+                .orElseThrow(() -> new MobiliException(MobiliErrorCode.RESOURCE_NOT_FOUND, "Partenaire introuvable"));
     }
 
-    // 2. CAS DE LA MISE À JOUR
-    return partenaireRepository.findById(partenaire.getId())
-            .map(existing -> {
-                existing.setName(partenaire.getName());
-                existing.setEmail(partenaire.getEmail());
-                existing.setPhone(partenaire.getPhone());
-                existing.setBusinessNumber(partenaire.getBusinessNumber());
-
-                // Gestion du logo à la mise à jour 💡
-                handleLogoUpload(existing, logoFile);
-
-                return partenaireRepository.save(existing);
-            })
-            .orElseThrow(() -> new MobiliException(MobiliErrorCode.RESOURCE_NOT_FOUND, "Partenaire introuvable"));
-}
-
-// 💡 Petite méthode privée pour centraliser l'upload dans le bon dossier
-private void handleLogoUpload(Partner partner, MultipartFile file) {
-    if (file != null && !file.isEmpty()) {
-        // On utilise "partners" pour correspondre à ton YAML (mobili.backend.upload.partners)
-        String path = uploadService.saveImage(file, "partners"); 
-        partner.setLogoUrl(path);
+    private String generateUniqueRegistrationCode() {
+        for (int attempt = 0; attempt < 20; attempt++) {
+            StringBuilder sb = new StringBuilder(8);
+            for (int i = 0; i < 8; i++) {
+                sb.append(REG_CODE_ALPHANUM[RANDOM.nextInt(REG_CODE_ALPHANUM.length)]);
+            }
+            String code = sb.toString();
+            if (partenaireRepository.findByRegistrationCodeIgnoreCase(code).isEmpty()) {
+                return code;
+            }
+        }
+        throw new MobiliException(MobiliErrorCode.VALIDATION_ERROR, "Impossible de générer un code partenaire unique");
     }
-}
 
-    // Dans PartnerService.java
+    private void handleLogoUpload(Partner partner, MultipartFile file) {
+        if (file != null && !file.isEmpty()) {
+            String path = uploadService.saveImage(file, "partners");
+            partner.setLogoUrl(path);
+        }
+    }
 
     @Transactional(readOnly = true)
     public Partner findByOwnerId(Long ownerId) {
@@ -97,6 +143,16 @@ private void handleLogoUpload(Partner partner, MultipartFile file) {
                 .orElseThrow(() -> new MobiliException(
                         MobiliErrorCode.RESOURCE_NOT_FOUND,
                         "Aucune entreprise n'est associée à cet utilisateur."));
+    }
+
+    @Transactional
+    public void fillMissingRegistrationCodes() {
+        for (Partner p : partenaireRepository.findAll()) {
+            if (p.getRegistrationCode() == null || p.getRegistrationCode().isBlank()) {
+                p.setRegistrationCode(generateUniqueRegistrationCode());
+                partenaireRepository.save(p);
+            }
+        }
     }
 
     @Transactional

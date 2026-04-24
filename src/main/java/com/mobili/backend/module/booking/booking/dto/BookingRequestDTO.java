@@ -26,6 +26,12 @@ public class BookingRequestDTO {
     @Min(value = 1)
     private Integer numberOfSeats;
 
+    /** Optionnel : 0 = premier arrêt du voyage (défaut). */
+    private Integer boardingStopIndex;
+
+    /** Optionnel : terminus (défaut). */
+    private Integer alightingStopIndex;
+
     @Data
     public static class SeatSelectionDTO {
         private String passengerName;

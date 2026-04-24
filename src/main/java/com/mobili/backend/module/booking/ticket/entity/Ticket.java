@@ -55,6 +55,18 @@ public class Ticket extends AbstractEntity {
 
     private LocalDateTime scannedAt;
 
+    @Column(name = "boarding_stop_index")
+    private Integer boardingStopIndex;
+
+    @Column(name = "alighting_stop_index")
+    private Integer alightingStopIndex;
+
+    /** Renseigné quand le chauffeur confirme la descente à cet arrêt ; libère le siège sur les tronçons suivants. */
+    @Column(name = "alighted_at_stop_index")
+    private Integer alightedAtStopIndex;
+
+    private LocalDateTime alightedAt;
+
     @PrePersist
     public void generateTicketNumber() {
         if (this.ticketNumber == null) {

@@ -26,7 +26,10 @@ public enum MobiliErrorCode {
             INSUFFICIENT_BALANCE(HttpStatus.CONFLICT, "PAY-001", "Solde insuffisant !"),
         
     INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "AUTH-001", "Identifiants incorrects."),
-    ACCESS_DENIED(HttpStatus.FORBIDDEN, "AUTH-002", "Vous n'avez pas les droits nécessaires.");
+    ACCESS_DENIED(HttpStatus.FORBIDDEN, "AUTH-002", "Vous n'avez pas les droits nécessaires."),
+
+    BOARDING_CLOSED(HttpStatus.CONFLICT, "TRP-002",
+            "Plus de réservation avec embarquement à cet arrêt (départ enregistré ou heure planifiée dépassée).");
 
     private final HttpStatus status;
     private final String code;

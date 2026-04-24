@@ -7,7 +7,9 @@ public enum BookingStatus {
     PENDING("En attente"),
     CONFIRMED("Confirmé"),
     CANCELLED("Annulé"),
-    COMPLETED("Terminé");
+    COMPLETED("Terminé"),
+    OFFLINE_SALE("Achat physique");
+
 
     private final String label;
 

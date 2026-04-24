@@ -19,7 +19,10 @@ public class FedaPayService {
     @Value("${FEDAPAY_SECRET_KEY}")
     private String secretKey;
 
-    public String createPaymentUrl(double amount, String customerEmail, Long bookingId) {
+    public record FedaPayCheckoutResult(String paymentUrl, String transactionId) {
+    }
+
+    public FedaPayCheckoutResult createPaymentSession(double amount, String customerEmail, Long bookingId) {
 
         try {
             FedaPay.setApiKey(secretKey.trim());
@@ -54,17 +57,50 @@ public class FedaPayService {
                     "lastname", "Mobili"));
 
             // 2. Création de la transaction
-            // La méthode create() peut lever une Exception générale
             Transaction transaction = Transaction.create(params);
-
-            // 3. Génération du lien
-            // Si .generateToken() ne marche pas, essaie .getUrl() directement sur l'objet
-            // transaction
-            return transaction.generateToken().getSecurePaymentLink();
+            if (transaction.getId() == null) {
+                throw new IllegalStateException("FedaPay: transaction sans id");
+            }
+            // 3. Lien de paiement
+            String link = transaction.generateToken().getSecurePaymentLink();
+            return new FedaPayCheckoutResult(link, transaction.getId());
 
         } catch (Exception e) {
             log.error("💥 Erreur FedaPay : {} - {}", e.getClass().getSimpleName(), e.getMessage());
             throw new RuntimeException("Échec FedaPay : " + e.getMessage());
         }
+    }
+
+    /**
+     * Indique si la transaction est finalisée côté FedaPay pour émettre les billets.
+     * (On n'utilise pas {@link Transaction#wasPaid()} seul : il inclut "refunded".)
+     */
+    public boolean isTransactionApprovedForBooking(String transactionId) {
+        if (transactionId == null || transactionId.isBlank()) {
+            return false;
+        }
+        try {
+            applyApiConfig();
+            Transaction t = Transaction.retrieve(transactionId);
+            if (t == null) {
+                return false;
+            }
+            return isApprovedOrTransferred(t.getStatus());
+        } catch (Exception e) {
+            log.warn("FedaPay retrieve({}) : {}", transactionId, e.getMessage());
+            return false;
+        }
+    }
+
+    private void applyApiConfig() throws Exception {
+        FedaPay.setApiKey(secretKey.trim());
+        FedaPay.setEnvironement("sandbox");
+    }
+
+    private static boolean isApprovedOrTransferred(String status) {
+        if (status == null) {
+            return false;
+        }
+        return "approved".equals(status) || "transferred".equals(status);
     }
 }

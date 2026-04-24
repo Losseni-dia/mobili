@@ -19,7 +19,9 @@ public interface UserMapper {
 
     // LECTURE
     @Mapping(target = "roles", qualifiedByName = "mapRolesToStrings")
-    @Mapping(target = "partnerId", expression = "java(user.getPartner() != null ? user.getPartner().getId() : null)")
+    @Mapping(target = "partnerId", expression = "java(resolvePartnerIdForProfile(user))")
+    @Mapping(target = "stationId", expression = "java(user.getStation() != null ? user.getStation().getId() : null)")
+    @Mapping(target = "stationName", expression = "java(user.getStation() != null ? user.getStation().getName() : null)")
     @Mapping(target = "totalBookingsCount", ignore = true) // 💡 Évite les erreurs si vide
     ProfileDTO toProfileDto(User user);
 
@@ -31,6 +33,16 @@ public interface UserMapper {
         return roles.stream()
                 .map(role -> role.getName().name()) // On extrait le nom de l'Enum
                 .toList(); // 👈 On transforme en List pour matcher le DTO
+    }
+
+    default Long resolvePartnerIdForProfile(com.mobili.backend.module.user.entity.User user) {
+        if (user.getPartner() != null) {
+            return user.getPartner().getId();
+        }
+        if (user.getStation() != null && user.getStation().getPartner() != null) {
+            return user.getStation().getPartner().getId();
+        }
+        return null;
     }
 
     // ÉCRITURE (Register)

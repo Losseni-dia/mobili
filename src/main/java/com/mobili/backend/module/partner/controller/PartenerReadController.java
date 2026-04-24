@@ -37,15 +37,14 @@ public class PartenerReadController {
     }
 
     @GetMapping("/my-company")
-    @PreAuthorize("hasRole('PARTNER') or hasRole('ADMIN')") // 💡 Sécurité renforcée
+    @PreAuthorize("hasAnyRole('PARTNER', 'GARE', 'ADMIN')")
     public PartnerProfileDTO getMyCompany(@AuthenticationPrincipal UserPrincipal principal) {
 
-        // On vérifie que le principal n'est pas nul (sécurité supplémentaire)
         if (principal == null || principal.getUser() == null) {
             throw new MobiliException(MobiliErrorCode.ACCESS_DENIED, "Utilisateur non identifié");
         }
 
         return partenaireMapper.toProfileDto(
-                partenaireService.findByOwnerId(principal.getUser().getId()));
+                partenaireService.getCurrentPartnerEnsuringRegistrationCode());
     }
 }

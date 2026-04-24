@@ -35,6 +35,13 @@ public class Partner extends AbstractEntity {
 
     private boolean enabled = true; // Permet à l'admin de bloquer la société
 
+    /**
+     * Code public (généré) pour l’auto-inscription des comptes gare : affiché au dirigeant, saisi par
+     * les responsables de gare. Unique (insensible à la casse côté recherche).
+     */
+    @Column(name = "registration_code", unique = true, length = 12)
+    private String registrationCode;
+
     @OneToOne // Un partenaire a un seul propriétaire
     @JoinColumn(name = "user_id", unique = true)
     private User owner;

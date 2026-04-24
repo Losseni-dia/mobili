@@ -7,6 +7,7 @@ import java.util.Set;
 
 import com.mobili.backend.module.booking.booking.entity.Booking;
 import com.mobili.backend.module.partner.entity.Partner;
+import com.mobili.backend.module.station.entity.Station;
 import com.mobili.backend.module.user.role.Role;
 import com.mobili.backend.shared.abstractEntity.AbstractEntity;
 
@@ -17,6 +18,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
@@ -57,6 +59,11 @@ public class User extends AbstractEntity {
 
     @OneToOne(mappedBy = "owner")
     private Partner partner;
+
+    /** Compte gare (responsable / équipe) : rattache l’utilisateur à une gare du partenaire. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "station_id")
+    private Station station;
 
     @Column(nullable = true)
     private Double balance = 0.0;

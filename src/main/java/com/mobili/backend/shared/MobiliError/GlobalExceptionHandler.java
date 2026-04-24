@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 
+import com.mobili.backend.module.analytics.entity.AnalyticsEventType;
+import com.mobili.backend.module.analytics.service.AnalyticsEventService;
 import com.mobili.backend.shared.MobiliError.exception.ErrorDetails;
 import com.mobili.backend.shared.MobiliError.exception.MobiliErrorCode;
 import com.mobili.backend.shared.MobiliError.exception.MobiliException;
@@ -18,6 +20,12 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    private final AnalyticsEventService analyticsEventService;
+
+    public GlobalExceptionHandler(AnalyticsEventService analyticsEventService) {
+        this.analyticsEventService = analyticsEventService;
+    }
 
     // 1. GESTION DES ERREURS PERSONNALISÉES
     @ExceptionHandler(MobiliException.class)
@@ -51,9 +59,12 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 
-    // 4. FALLBACK (Erreurs imprévues)
+    // 4. FALLBACK (Erreurs imprévues) — n'inclut pas le message (PII / JSON fragile).
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorDetails> handleGlobal(Exception ex, WebRequest request) {
+        String safeEx = ex.getClass().getName().replace("\"", "");
+        String payload = String.format("{\"exception\":\"%s\"}", safeEx);
+        analyticsEventService.record(AnalyticsEventType.SERVER_ERROR, null, payload);
         return buildResponse(MobiliErrorCode.INTERNAL_SERVER_ERROR, ex.getMessage(), request);
     }
 

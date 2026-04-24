@@ -2,6 +2,11 @@ server:
   port: 8080
 
 spring:
+  devtools:
+    restart:
+      # Évite des ClassNotFoundError intermittents (ex. AdminService) quand le RestartClassLoader
+      # se retrouve avec un classpath partiel. Redémarrer l’appli manuellement après un changement Java.
+      enabled: false
   datasource:
     url: ${DB_URL}
     username: ${DB_USERNAME}
@@ -14,8 +19,12 @@ spring:
     properties:
       hibernate:
         format_sql: true
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
     open-in-view: false
+
+logging:
+  level:
+    # DevTools : réduit le bruit (rapport "CONDITION EVALUATION DELTA" à chaque redémarrage)
+    org.springframework.boot.devtools: warn
 
 mobili:
   security:

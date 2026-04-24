@@ -75,6 +75,18 @@ public class Booking extends AbstractEntity {
 
     private LocalDateTime paidAt;
 
+    /** ID transaction FedaPay (statut relu si le webhook n'atteint pas le serveur, ex. localhost). */
+    @Column(name = "fedapay_transaction_id", length = 64)
+    private String fedapayTransactionId;
+
+    /** Indice d’arrêt d’embarquement sur la chaîne du voyage (0 = premier arrêt). */
+    @Column(name = "boarding_stop_index")
+    private Integer boardingStopIndex;
+
+    /** Indice d’arrêt de descente (inclus dans la chaîne ; tronçon occupé = [boarding, alighting)). */
+    @Column(name = "alighting_stop_index")
+    private Integer alightingStopIndex;
+
     @PrePersist
     public void initBooking() {
         this.bookingDate = LocalDateTime.now();

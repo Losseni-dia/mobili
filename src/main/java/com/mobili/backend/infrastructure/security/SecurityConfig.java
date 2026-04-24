@@ -24,7 +24,8 @@ import com.mobili.backend.infrastructure.security.token.JwtAuthenticationFilter;
 
 import lombok.RequiredArgsConstructor;
 
-@Configuration
+/** Sans proxy CGLIB (inutile ici) — évite des échecs au démarrage avec DevTools. */
+@Configuration(proxyBeanMethods = false)
 @EnableWebSecurity
 @EnableMethodSecurity
 @RequiredArgsConstructor
@@ -40,10 +41,22 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         // 1. ACCÈS PUBLIC
+                        .requestMatchers("/error", "/error/**").permitAll()
+                        // Prévol CORS (évite 403 en amont d’authentification)
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/uploads/**").permitAll()
-                        .requestMatchers("/v1/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/v1/auth/login", "/v1/auth/register").permitAll()
+                        .requestMatchers("/v1/trips/*/driver/**")
+                        .hasAnyAuthority(new String[] { "ROLE_CHAUFFEUR", "ROLE_PARTNER", "ROLE_GARE", "ROLE_ADMIN" })
                         .requestMatchers(HttpMethod.GET, "/v1/trips", "/v1/trips/**").permitAll()
                         .requestMatchers("/v1/payments/callback").permitAll()
+                        .requestMatchers("/v1/auth/registration/**").permitAll()
+                        // Canal voyage : exclu du GET public /v1/trips/** (doit être authentifié)
+                        .requestMatchers(HttpMethod.GET, "/v1/trips/*/channel/messages")
+                        .hasAnyAuthority(new String[] { "ROLE_USER", "ROLE_PARTNER", "ROLE_GARE", "ROLE_ADMIN" })
+                        .requestMatchers("/v1/inbox/**")
+                        .hasAnyAuthority(new String[] { "ROLE_USER", "ROLE_PARTNER", "ROLE_GARE", "ROLE_CHAUFFEUR",
+                                "ROLE_ADMIN" })
 
                         // 2. INSCRIPTION PARTENAIRE (Utilisateur déjà connecté)
                         .requestMatchers(HttpMethod.POST, "/v1/partners").authenticated()
@@ -52,22 +65,34 @@ public class SecurityConfig {
                         // Note : hasAnyAuthority est plus fiable car il matche exactement
                         // "ROLE_PARTNER"
                         .requestMatchers(HttpMethod.POST, "/v1/trips", "/v1/trips/**")
-                        .hasAnyAuthority("ROLE_PARTNER", "ROLE_ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/v1/trips/**").hasAnyAuthority("ROLE_PARTNER", "ROLE_ADMIN")
+                        .hasAnyAuthority(new String[] { "ROLE_PARTNER", "ROLE_GARE", "ROLE_ADMIN" })
+                        .requestMatchers(HttpMethod.PUT, "/v1/trips/**")
+                        .hasAnyAuthority(new String[] { "ROLE_PARTNER", "ROLE_GARE", "ROLE_ADMIN" })
                         .requestMatchers(HttpMethod.DELETE, "/v1/trips/**")
-                        .hasAnyAuthority("ROLE_PARTNER", "ROLE_ADMIN")
+                        .hasAnyAuthority(new String[] { "ROLE_PARTNER", "ROLE_GARE", "ROLE_ADMIN" })
+                        .requestMatchers("/v1/partenaire/dashboard/**", "/v1/partenaire/stations/**")
+                        .hasAnyAuthority(new String[] { "ROLE_PARTNER", "ROLE_GARE", "ROLE_ADMIN" })
+                        .requestMatchers("/v1/partner-gare-com/**")
+                        .hasAnyAuthority(new String[] { "ROLE_PARTNER", "ROLE_GARE", "ROLE_ADMIN" })
+                        .requestMatchers("/v1/trips/my-trips")
+                        .hasAnyAuthority(new String[] { "ROLE_PARTNER", "ROLE_GARE", "ROLE_ADMIN" })
 
                         // 4. PROFIL ET RÉSERVATIONS
-                        .requestMatchers("/v1/auth/me").hasAnyAuthority("ROLE_USER", "ROLE_PARTNER", "ROLE_ADMIN")
-                        .requestMatchers("/v1/bookings/**").hasAnyAuthority("ROLE_USER", "ROLE_PARTNER","ROLE_ADMIN")
+                        .requestMatchers("/v1/auth/me")
+                        .hasAnyAuthority(new String[] { "ROLE_USER", "ROLE_PARTNER", "ROLE_GARE", "ROLE_CHAUFFEUR", "ROLE_ADMIN" })
+                        .requestMatchers("/v1/bookings/**")
+                        .hasAnyAuthority(new String[] { "ROLE_USER", "ROLE_PARTNER", "ROLE_GARE", "ROLE_ADMIN" })
                         .requestMatchers("/v1/tickets/**")
-                        .hasAnyAuthority("ROLE_USER", "ROLE_PARTNER", "ROLE_CHAUFFEUR", "ROLE_ADMIN")
+                        .hasAnyAuthority(new String[] { "ROLE_USER", "ROLE_PARTNER", "ROLE_GARE", "ROLE_CHAUFFEUR", "ROLE_ADMIN" })
 
                         // 5. ADMINISTRATION DES PARTENAIRES
+                        // Plus spécifique en premier (sinon /v1/partners/** n'autorise que l'admin
+                        // et my-company / lecteurs partenaire+gare ne matchent jamais)
+                        .requestMatchers("/v1/partners/my-company")
+                        .hasAnyAuthority("ROLE_PARTNER", "ROLE_GARE", "ROLE_ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/v1/partners/**")
-                        .hasAnyAuthority("ROLE_PARTNER", "ROLE_ADMIN")
+                        .hasAnyAuthority(new String[] { "ROLE_PARTNER", "ROLE_ADMIN" })
                         .requestMatchers("/v1/partners/**").hasAnyAuthority("ROLE_ADMIN")
-                        .requestMatchers("/v1/partners/my-company").hasAnyRole("PARTNER", "ADMIN")
                         .requestMatchers("/v1/admin/**").hasAnyAuthority("ROLE_ADMIN")
 
                         .anyRequest().authenticated())
@@ -85,9 +110,10 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200"));
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200", "http://127.0.0.1:4200"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept", "X-Requested-With"));
+        configuration.setAllowedHeaders(
+                Arrays.asList("Authorization", "Content-Type", "Accept", "X-Requested-With", "Last-Event-ID"));
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

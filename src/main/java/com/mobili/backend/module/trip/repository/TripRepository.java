@@ -1,40 +1,40 @@
 package com.mobili.backend.module.trip.repository;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
-import com.mobili.backend.module.trip.entity.Trip;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+
+import com.mobili.backend.module.trip.entity.Trip;
+
 @Repository
 public interface TripRepository extends JpaRepository<Trip, Long> {
 
-        // On ajoute JOIN FETCH t.partner pour charger l'objet partenaire en une seule
-        // requête
-        @Query("SELECT t FROM Trip t JOIN FETCH t.partner " +
-                        "WHERE LOWER(t.departureCity) = LOWER(:departure) " +
-                        "AND LOWER(t.arrivalCity) = LOWER(:arrival) " +
-                        "AND t.departureDateTime >= :startDateTime " +
-                        "AND t.availableSeats > 0 " +
-                        "ORDER BY t.departureDateTime ASC")
-        List<Trip> searchTrips(
-                        @Param("departure") String departure,
-                        @Param("arrival") String arrival,
-                        @Param("startDateTime") LocalDateTime startDateTime);
+    @Query("SELECT t FROM Trip t JOIN FETCH t.partner LEFT JOIN FETCH t.station WHERE t.departureDateTime >= ?1 ORDER BY t.departureDateTime ASC")
+    List<Trip> findAllUpcomingTrips(LocalDateTime startDateTime);
 
-        // Ici aussi, le JOIN FETCH est indispensable pour le catalogue public
-        @Query("SELECT t FROM Trip t JOIN FETCH t.partner " +
-                        "WHERE t.departureDateTime >= :startDateTime " +
-                        "AND t.availableSeats > 0 " +
-                        "ORDER BY t.departureDateTime ASC")
-        List<Trip> findAllUpcomingTrips(@Param("startDateTime") LocalDateTime startDateTime);
+    @Query("SELECT t FROM Trip t LEFT JOIN FETCH t.partner WHERE t.id = ?1")
+    Optional<Trip> findByIdWithPartner(Long id);
 
-        @Query("SELECT t FROM Trip t LEFT JOIN FETCH t.partner WHERE t.id = :id")
-        Optional<Trip> findByIdWithPartner(@Param("id") Long id);
+    @Query("SELECT t FROM Trip t LEFT JOIN FETCH t.partner LEFT JOIN FETCH t.station LEFT JOIN FETCH t.stops WHERE t.id = ?1")
+    Optional<Trip> findByIdWithPartnerAndStops(Long id);
 
-        @Query("SELECT t FROM Trip t LEFT JOIN FETCH t.partner")
-        List<Trip> findAllWithPartner();
+    @Query("SELECT t FROM Trip t LEFT JOIN FETCH t.partner")
+    List<Trip> findAllWithPartner();
+
+    @Query("SELECT COUNT(t) FROM Trip t WHERE t.partner.id = ?1")
+    long countTripsByPartner(Long partnerId);
+
+    @Query("SELECT COUNT(t) FROM Trip t WHERE t.partner.id = :partnerId AND t.station.id = :stationId")
+    long countTripsByPartnerAndStation(@Param("partnerId") Long partnerId, @Param("stationId") Long stationId);
+
+    @Query("SELECT t FROM Trip t LEFT JOIN FETCH t.partner LEFT JOIN FETCH t.station WHERE t.partner.id = ?1 ORDER BY t.departureDateTime DESC")
+    List<Trip> findAllByPartnerId(Long partnerId);
+
+    @Query("SELECT t FROM Trip t LEFT JOIN FETCH t.partner LEFT JOIN FETCH t.station WHERE t.partner.id = :partnerId AND t.station.id = :stationId ORDER BY t.departureDateTime DESC")
+    List<Trip> findAllByPartnerIdAndStationId(@Param("partnerId") Long partnerId, @Param("stationId") Long stationId);
 }

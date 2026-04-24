@@ -19,6 +19,14 @@ public class ProfileDTO {
     private boolean enabled;
     private Double balance;
     private List<String> roles;
-    private Long partnerId; // 💡 AJOUTE CETTE LIGNE
+    private Long partnerId;
+    /** Compte gare (responsable d’une gare) */
+    private Long stationId;
+    private String stationName;
+    /**
+     * Rôle GARE : la gare est validée (booléen {@code Station.validated}) et active, donc
+     * trajets, scanner, accès compagnie autorisés. {@code null} si pas gare.
+     */
+    private Boolean gareOperationsEnabled;
     private Integer totalBookingsCount;
 }

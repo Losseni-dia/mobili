@@ -20,4 +20,6 @@ public interface PartnerRepository extends JpaRepository<Partner, Long> {
 
    @Query("SELECT p FROM Partner p WHERE p.owner.id = :userId")
     Optional<Partner> findByOwnerId(@Param("userId") Long userId);
+
+    Optional<Partner> findByRegistrationCodeIgnoreCase(String registrationCode);
 }

@@ -3,7 +3,7 @@ package com.mobili.backend.module.booking.booking.dto;
 
 import lombok.Data;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Set;
 
 import com.mobili.backend.module.booking.booking.entity.BookingStatus;
 
@@ -11,14 +11,31 @@ import com.mobili.backend.module.booking.booking.entity.BookingStatus;
 public class BookingResponseDTO {
     private Long id;
     private String reference;
+    private String customerName;
+    private String tripRoute;
     private String departureCity;
     private String arrivalCity;
+    /** Villes d'escale (CSV), utile pour recalculer le tronçon côté UI. */
+    private String moreInfo;
     private LocalDateTime departureDateTime;
+    private LocalDateTime date;
     private Integer numberOfSeats;
-    private List<String> seatNumbers; // ✅ Ajouté pour afficher "Sièges : A1, A2"
-    private List<String> passengerNames; // ✅ Ajouté pour le récapitulatif nominatif
+    private Set<String> seatNumbers;
+    private Set<String> passengerNames;
+    /** Montant total de la réservation. */
     private Double totalPrice;
+    /** Alias de {@link #totalPrice} conservé pour compatibilité avec les écrans partenaire. */
+    private Double amount;
+    /** Prix pour une seule place (= totalPrice / numberOfSeats). */
+    private Double pricePerSeat;
+    /** Index de l'arrêt d'embarquement (0 = ville de départ). */
+    private Integer boardingStopIndex;
+    /** Index de l'arrêt de descente (dernier = ville d'arrivée). */
+    private Integer alightingStopIndex;
+    /** Nom de la ville où le voyageur monte. */
+    private String boardingCity;
+    /** Nom de la ville où le voyageur descend. */
+    private String alightingCity;
     private BookingStatus status;
     private LocalDateTime bookingDate;
-    private LocalDateTime paidAt;
 }

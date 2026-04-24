@@ -11,6 +11,7 @@ public interface TicketMapper {
 
     // ✅ On prend directement le nom stocké dans l'entité Ticket
     @Mapping(source = "passengerName", target = "passengerFullName")
+    @Mapping(source = "trip.id", target = "tripId")
 
     @Mapping(source = "ticketNumber", target = "qrCodeData")
     @Mapping(source = "trip.departureCity", target = "departureCity")

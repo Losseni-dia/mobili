@@ -39,6 +39,11 @@ public class UserService {
                         "Utilisateur introuvable (ID: " + id + ")"));
     }
 
+    /** Référence légère (clé) pour clés étrangères, sans requête complète. */
+    public User getReference(Long id) {
+        return userRepository.getReferenceById(id);
+    }
+
     public List<User> findAllUsers() {
         // On récupère tout simplement les entités
         return userRepository.findAll();

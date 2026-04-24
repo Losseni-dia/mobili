@@ -15,6 +15,7 @@ import com.mobili.backend.module.user.dto.ProfileDTO;
 import com.mobili.backend.module.user.dto.mapper.UserMapper;
 import com.mobili.backend.module.user.entity.User;
 import com.mobili.backend.module.user.repository.UserRepository;
+import com.mobili.backend.module.user.service.GareProfileEnricher;
 import com.mobili.backend.shared.MobiliError.exception.MobiliErrorCode;
 import com.mobili.backend.shared.MobiliError.exception.MobiliException;
 
@@ -27,28 +28,33 @@ public class UserReadController {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper; // Injection via constructeur (Lombok)
+    private final GareProfileEnricher gareProfileEnricher;
 
     @GetMapping
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public List<ProfileDTO> getAll() {
-        return userRepository.findAll().stream()
+        return userRepository.findAllForProfileDto().stream()
                 .map(userMapper::toProfileDto)
                 .collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or #id == authentication.principal.user.id")
     public ProfileDTO getOne(@PathVariable Long id) {
-        User user = userRepository.findById(id)
+        User user = userRepository.findByIdWithEverything(id)
                 .orElseThrow(() -> new MobiliException(
                         MobiliErrorCode.RESOURCE_NOT_FOUND,
                         "Utilisateur avec l'ID " + id + " est introuvable."));
-        return userMapper.toProfileDto(user);
+        ProfileDTO dto = userMapper.toProfileDto(user);
+        gareProfileEnricher.enrich(dto, user);
+        return dto;
     }
 
     // Dans UserReadController.java
 
     @GetMapping("/me")
     // 💡 On utilise hasAnyAuthority pour matcher exactement les chaînes
-    @PreAuthorize("hasAnyAuthority('ROLE_USER', 'ROLE_ADMIN', 'ROLE_PARTNER', 'USER', 'ADMIN', 'PARTNER')")
+    @PreAuthorize("hasAnyAuthority('ROLE_USER', 'ROLE_ADMIN', 'ROLE_PARTNER', 'ROLE_GARE', 'ROLE_CHAUFFEUR', 'USER', 'ADMIN', 'PARTNER', 'GARE', 'CHAUFFEUR')")
     public ProfileDTO getMyProfile(@AuthenticationPrincipal UserPrincipal principal) {
         if (principal == null) {
             throw new MobiliException(MobiliErrorCode.ACCESS_DENIED, "Session expirée ou invalide");
@@ -59,7 +65,9 @@ public class UserReadController {
                         MobiliErrorCode.RESOURCE_NOT_FOUND,
                         "Utilisateur introuvable."));
 
-        return userMapper.toProfileDto(user);
+        ProfileDTO dto = userMapper.toProfileDto(user);
+        gareProfileEnricher.enrich(dto, user);
+        return dto;
     }
 
 }

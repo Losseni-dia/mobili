@@ -11,4 +11,6 @@ public class PartnerProfileDTO {
     private String logoUrl;
     private String businessNumber;
     private boolean enabled;
+    /** Code saisi par les gares à l’auto-inscription. */
+    private String registrationCode;
 }

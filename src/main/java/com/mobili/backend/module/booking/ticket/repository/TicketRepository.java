@@ -23,6 +23,16 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
     @Query("SELECT t.seatNumber FROM Ticket t WHERE t.trip.id = :tripId AND t.status != 'ANNULÉ'")
     List<String> findOccupiedSeatNumbersByTripId(@Param("tripId") Long tripId);
 
+    @Query("SELECT t FROM Ticket t WHERE t.trip.id = :tripId ORDER BY t.seatNumber ASC")
+    List<Ticket> findAllByTripIdOrderBySeatNumberAsc(@Param("tripId") Long tripId);
+
     @Query("SELECT t FROM Ticket t JOIN FETCH t.trip WHERE t.passenger.id = :userId")
     List<Ticket> findAllByUserIdCustom(@Param("userId") Long userId);
+
+    @Query("SELECT DISTINCT t.passenger.id FROM Ticket t WHERE t.trip.id = :tripId AND t.status <> 'ANNULÉ'")
+    List<Long> findDistinctPassengerIdsWithActiveTicket(@Param("tripId") Long tripId);
+
+    @Query("SELECT CASE WHEN COUNT(t) > 0 THEN true ELSE false END FROM Ticket t "
+            + "WHERE t.trip.id = :tripId AND t.passenger.id = :userId AND t.status <> 'ANNULÉ'")
+    boolean existsActiveTicketForTripAndPassenger(@Param("tripId") Long tripId, @Param("userId") Long userId);
 }

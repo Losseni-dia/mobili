@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 
 @Data
 public class TicketResponseDTO {
+    private Long tripId;
     private String ticketNumber;
     private String passengerFullName; // firstName + lastName
     private String qrCodeData;

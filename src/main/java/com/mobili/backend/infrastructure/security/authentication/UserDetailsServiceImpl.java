@@ -23,6 +23,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                         MobiliErrorCode.INVALID_CREDENTIALS,
                         "Utilisateur non trouvé avec le login : " + login));
 
-        return new UserPrincipal(user);
+        return UserPrincipal.fromUser(user);
     }
 }

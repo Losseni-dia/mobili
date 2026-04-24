@@ -1,13 +1,16 @@
 package com.mobili.backend.module.trip.entity;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import java.util.Arrays;
 
 public enum VehicleType {
     BUS_CLIMATISE("Bus Climatisé"),
     BUS_CLASSIQUE("Bus Classique"),
-    CAR_CLIMATISE("Car Climatisé"),
-    CAR_CLASSIQUE("Car Classique"),
+    CAR_70_PLACES("Car 70 places"),
     MINIBUS("Minibus"),
+    MASSA_NORMAL("Massa normal"),
+    MASSA_6_ROUES("Massa 6 roues"),
     VAN("Van");
 
     private final String label;
@@ -16,15 +19,18 @@ public enum VehicleType {
         this.label = label;
     }
 
-    // On garde getLabel pour le code Java
+    @JsonValue
     public String getLabel() {
         return label;
     }
 
-    // 💡 On force Jackson à utiliser le label pour le JSON
-    @Override
-    @JsonValue
-    public String toString() {
-        return label;
+    // 💡 Ce décodeur permet de lire "MINIBUS" ou "Minibus" sans erreur 500
+    @JsonCreator
+    public static VehicleType fromString(String value) {
+        return Arrays.stream(VehicleType.values())
+                .filter(type -> type.name().equalsIgnoreCase(value) ||
+                        type.label.equalsIgnoreCase(value))
+                .findFirst()
+                .orElse(null);
     }
 }

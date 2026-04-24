@@ -14,6 +14,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.mobili.backend.infrastructure.security.authentication.UserDetailsServiceImpl;
 
+import io.jsonwebtoken.JwtException;
 import java.io.IOException;
 
 @Component
@@ -37,9 +38,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        // 2. Extraire le token (on enlève "Bearer ")
-        jwt = authHeader.substring(7);
-        userLogin = jwtService.extractUsername(jwt);
+        try {
+            // 2. Extraire le token (on enlève "Bearer ")
+            jwt = authHeader.substring(7);
+            userLogin = jwtService.extractUsername(jwt);
+        } catch (JwtException | IllegalArgumentException e) {
+            // Ne pas couper la requête : les routes publiques (ex. GET /v1/trips) doivent
+            // rester accessibles ; un JWT expiré mal stocké côté client ne bloque plus le catalogue.
+            SecurityContextHolder.clearContext();
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         // 3. Si on a un login et que l'utilisateur n'est pas encore authentifié dans le
         // contexte
